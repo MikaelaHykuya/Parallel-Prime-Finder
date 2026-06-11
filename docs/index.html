@@ -2,470 +2,585 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Parallel Prime Number Finder</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:'Inter','Segoe UI',system-ui,sans-serif;
-  background:#0a0e17;
-  color:#e8edf5;
-  min-height:100vh;
-  padding:24px;
-}
-.container{max-width:1100px;margin:0 auto}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:#0a0e17;color:#e8edf5;min-height:100vh;padding:20px}
+.container{max-width:1140px;margin:0 auto}
 
-/* ── Header ── */
-.header{
-  background:linear-gradient(135deg,#0f172a 0%,#1a2332 100%);
-  border:1px solid #1e293b;
-  border-radius:16px;
-  padding:28px 32px;
-  margin-bottom:24px;
-  position:relative;
-  overflow:hidden;
-}
-.header::before{
-  content:'';
-  position:absolute;
-  top:0;right:0;
-  width:300px;height:300px;
-  background:radial-gradient(circle,rgba(56,189,248,0.08),transparent);
-}
-.header-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
-.header h1{
-  font-size:1.6rem;
-  font-weight:700;
-  background:linear-gradient(135deg,#38bdf8,#818cf8);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-.header .sub{color:#64748b;font-size:0.85rem;margin-top:4px}
-.header .sub span{color:#94a3b8}
-.header-badges{display:flex;gap:8px;flex-wrap:wrap}
-.badge{
-  display:inline-flex;align-items:center;gap:6px;
-  background:rgba(56,189,248,0.1);
-  border:1px solid rgba(56,189,248,0.2);
-  padding:5px 14px;border-radius:20px;
-  font-size:0.78rem;color:#7dd3fc;font-weight:500;
-}
-.badge i{font-style:normal;font-size:1rem}
+/* ├─ Header ───────── */
+.header{background:linear-gradient(135deg,#0f172a,#1a2332);border:1px solid #1e293b;border-radius:14px;padding:22px 28px;margin-bottom:18px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;right:0;width:280px;height:280px;background:radial-gradient(circle,rgba(56,189,248,.07),transparent)}
+.htop{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+.htop h1{font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.htop .sub{color:#64748b;font-size:.82rem;margin-top:3px}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:5px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.15);padding:4px 12px;border-radius:18px;font-size:.74rem;color:#7dd3fc;font-weight:500}
 
-/* ── Controls ── */
-.controls{
-  display:flex;gap:10px;margin-top:18px;
-  flex-wrap:wrap;
+/* ├─ Controls ──────── */
+.controls{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.ctrl-group{display:flex;align-items:center;gap:6px}
+.ctrl-group label{font-size:.78rem;color:#64748b;font-weight:500}
+.ctrl-group select,.ctrl-group input{
+  background:#0a0e17;border:1px solid #1e293b;border-radius:8px;
+  color:#e2e8f0;padding:7px 12px;font-size:.85rem;font-weight:500;
+  outline:none;transition:border .2s;font-family:inherit;
 }
+.ctrl-group select{min-width:72px;cursor:pointer}
+.ctrl-group input{width:110px}
+.ctrl-group select:focus,.ctrl-group input:focus{border-color:#38bdf8}
 .btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 24px;border-radius:10px;
-  font-size:0.9rem;font-weight:600;
-  border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 20px;border-radius:9px;font-size:.84rem;font-weight:600;
+  border:none;cursor:pointer;transition:all .2s;
+}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 3px 12px rgba(37,99,235,.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(37,99,235,.35)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-secondary{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.btn-secondary:hover{background:#334155;color:#e2e8f0}
+.btn-secondary:disabled{opacity:.35;cursor:not-allowed}
+.btn-success{background:linear-gradient(135deg,#059669,#047857);color:#fff;box-shadow:0 3px 12px rgba(5,150,105,.25)}
+.btn-success:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(5,150,105,.35)}
+.btn-danger{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+
+/* ├─ Section Tabs ──── */
+.mode-tabs{display:flex;gap:4px;background:#0a0e17;border-radius:10px;padding:3px;border:1px solid #1e293b;margin-bottom:18px}
+.mode-tab{padding:7px 18px;border-radius:8px;font-size:.8rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:#64748b;transition:all .2s}
+.mode-tab.active{background:#1e293b;color:#e2e8f0}
+.mode-tab:hover:not(.active){color:#94a3b8}
+.mode-tab:disabled{opacity:.3;cursor:not-allowed}
+
+/* ├─ Worker Grid ───── */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}}
+.card{
+  background:linear-gradient(145deg,#111b2e,#0f172a);border:1px solid #1e293b;
+  border-radius:12px;padding:16px;transition:all .4s;position:relative;overflow:hidden
+}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#334155;transition:background .4s}
+.card.running::after{background:linear-gradient(90deg,#38bdf8,#818cf8,#38bdf8);background-size:200% 100%;animation:shim 2s infinite}
+.card.done::after{background:#22c55e}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ch .nm{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.9rem}
+.ch .nm .ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.ch .nm .ic.idle{background:rgba(71,85,105,.25);color:#64748b}
+.ch .nm .ic.busy{background:rgba(56,189,248,.18);color:#38bdf8}
+.ch .nm .ic.done{background:rgba(34,197,94,.18);color:#22c55e}
+.st{font-size:.7rem;padding:3px 10px;border-radius:9px;font-weight:600;letter-spacing:.2px}
+.st.wait{background:#1e293b;color:#64748b}
+.st.run{background:rgba(56,189,248,.12);color:#38bdf8}
+.st.done{background:rgba(34,197,94,.12);color:#4ade80}
+.rf{display:flex;gap:12px;margin-bottom:10px;font-size:.8rem;color:#94a3b8;flex-wrap:wrap}
+.rf .kv{display:flex;gap:3px}
+.rf .kv .l{color:#475569}
+.rf .kv .v{color:#cbd5e1;font-weight:500}
+.bl{display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:3px}
+.bl .l{color:#475569}.bl .v{color:#38bdf8;font-weight:600}
+.bt{background:#0a0e17;border-radius:7px;height:12px;overflow:hidden;margin-bottom:10px}
+.bf{height:100%;width:0%;border-radius:7px;transition:width .15s ease}
+.bf.w1{background:linear-gradient(90deg,#38bdf8,#2dd4bf)}
+.bf.w2{background:linear-gradient(90deg,#818cf8,#a78bfa)}
+.bf.w3{background:linear-gradient(90deg,#f472b6,#fb7185)}
+.bf.w4{background:linear-gradient(90deg,#fbbf24,#fb923c)}
+.cs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sb{background:rgba(10,14,23,.5);border-radius:7px;padding:6px 8px;text-align:center}
+.sb .n{font-size:1rem;font-weight:700;color:#e2e8f0}
+.sb .lb{font-size:.65rem;color:#475569;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.sb .n.gr{color:#4ade80}.sb .n.bl{color:#38bdf8}
+
+/* ├─ Panels ────────── */
+.bot{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:16px}
+@media(max-width:768px){.bot{grid-template-columns:1fr}}
+.panel{background:linear-gradient(145deg,#111b2e,#0f172a);border:1px solid #1e293b;border-radius:12px;padding:16px}
+.panel h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.8px;color:#475569;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.panel h3 .h{color:#38bdf8}
+
+/* ├─ Terminal ──────── */
+.term{background:#05080f;border-radius:7px;padding:12px;height:160px;overflow-y:auto;font-family:'JetBrains Mono','Fira Code',monospace;font-size:.74rem;line-height:1.6}
+.term::-webkit-scrollbar{width:3px}
+.term::-webkit-scrollbar-track{background:transparent}
+.term::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+.term .ln{opacity:0;animation:fi .25s forwards;color:#94a3b8;white-space:pre-wrap;word-break:break-all}
+.term .ln.i{color:#7dd3fc}.term .ln.o{color:#4ade80}.term .ln.w{color:#fbbf24}.term .ln.r{color:#a78bfa;font-weight:600}
+@keyframes fi{to{opacity:1}}
+
+/* ├─ Comparison ────── */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.comp-box{background:rgba(10,14,23,.5);border-radius:8px;padding:10px;text-align:center}
+.comp-box .n{font-size:1.3rem;font-weight:800}
+.comp-box .n.blue{background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.comp-box .n.green{background:linear-gradient(135deg,#4ade80,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.comp-box .n.orange{background:linear-gradient(135deg,#fbbf24,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.comp-box .lb{font-size:.68rem;color:#475569;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.comp-divider{text-align:center;padding:6px;color:#475569;font-size:.75rem;letter-spacing:1px}
+
+/* ├─ Summary ────────── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.si{background:rgba(10,14,23,.5);border-radius:8px;padding:12px;text-align:center}
+.si .n{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.si .n.gn{background:linear-gradient(135deg,#4ade80,#22c55e);-webkit-background-clip:text;background-clip:text}
+.si .n.or{background:linear-gradient(135deg,#fbbf24,#fb923c);-webkit-background-clip:text;background-clip:text}
+.si .lb{font-size:.68rem;color:#475569;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.sbar{margin-top:10px;padding-top:10px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;flex-wrap:wrap;gap:6px}
+.sbar .ind{display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;background:#475569;transition:background .3s}
+.dot.run{background:#38bdf8;box-shadow:0 0 8px rgba(56,189,248,.5);animation:pl 1.4s infinite}
+.dot.done{background:#4ade80}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ├─ Prime List ────── */
+.prime-section{margin-bottom:16px}
+.prime-toggle{
+  width:100%;padding:10px 16px;border-radius:10px;
+  background:linear-gradient(145deg,#111b2e,#0f172a);border:1px solid #1e293b;
+  color:#94a3b8;font-size:.82rem;font-weight:500;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
   transition:all .2s;
 }
-.btn-start{
-  background:linear-gradient(135deg,#2563eb,#1d4ed8);
-  color:#fff;box-shadow:0 4px 15px rgba(37,99,235,0.3);
+.prime-toggle:hover{border-color:#334155;color:#e2e8f0}
+.prime-toggle .arr{transition:transform .3s}
+.prime-toggle .arr.open{transform:rotate(180deg)}
+.prime-body{display:none;background:linear-gradient(145deg,#111b2e,#0f172a);border:1px solid #1e293b;border-top:0;border-radius:0 0 10px 10px;padding:14px;max-height:320px;overflow:hidden}
+.prime-body.open{display:block}
+.prime-search{display:flex;gap:8px;margin-bottom:10px}
+.prime-search input{
+  flex:1;background:#0a0e17;border:1px solid #1e293b;border-radius:7px;
+  color:#e2e8f0;padding:7px 12px;font-size:.82rem;outline:none;font-family:inherit;
 }
-.btn-start:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,0.4)}
-.btn-start:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-reset{
-  background:#1e293b;color:#94a3b8;
-  border:1px solid #334155;
+.prime-search input:focus{border-color:#38bdf8}
+.prime-list-wrap{max-height:220px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start}
+.prime-list-wrap::-webkit-scrollbar{width:3px}
+.prime-list-wrap::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+.prime-item{
+  display:inline-block;padding:3px 9px;border-radius:5px;
+  background:rgba(56,189,248,.08);color:#7dd3fc;
+  font-size:.75rem;font-family:'JetBrains Mono',monospace;font-weight:500;
 }
-.btn-reset:hover{background:#334155;color:#e2e8f0}
-.btn-reset.running{opacity:.4;cursor:not-allowed}
+.prime-count-info{font-size:.75rem;color:#475569;margin-top:8px;text-align:center}
 
-/* ── Grid ── */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
-@media(max-width:680px){.grid{grid-template-columns:1fr}}
+/* ├─ Footer ────────── */
+.foot{text-align:center;color:#1e293b;font-size:.75rem;padding:6px 0}
+.foot a{color:#475569;text-decoration:none}
+.foot a:hover{color:#38bdf8}
 
-.card{
-  background:linear-gradient(145deg,#111b2e,#0f172a);
-  border:1px solid #1e293b;
-  border-radius:14px;
-  padding:20px;
-  transition:all .4s;
-  position:relative;overflow:hidden;
-}
-.card::after{
-  content:'';position:absolute;top:0;left:0;right:0;
-  height:3px;background:#334155;transition:background .4s;
-}
-.card.running::after{background:linear-gradient(90deg,#38bdf8,#818cf8,#38bdf8);background-size:200% 100%;animation:shimmer 2s infinite}
-.card.done::after{background:#22c55e}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.card-title{display:flex;align-items:center;gap:10px;font-weight:600;font-size:0.95rem}
-.card-title .icon{
-  width:32px;height:32px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1rem;
-}
-.card-title .icon.idle{background:rgba(71,85,105,0.3);color:#64748b}
-.card-title .icon.busy{background:rgba(56,189,248,0.2);color:#38bdf8}
-.card-title .icon.done{background:rgba(34,197,94,0.2);color:#22c55e}
-.status{
-  font-size:0.72rem;padding:4px 12px;border-radius:10px;
-  font-weight:600;letter-spacing:.3px;
-}
-.status.waiting{background:#1e293b;color:#64748b}
-.status.running{background:rgba(56,189,248,0.15);color:#38bdf8}
-.status.done{background:rgba(34,197,94,0.15);color:#4ade80}
-
-.range-info{
-  display:flex;gap:16px;margin-bottom:14px;
-  font-size:0.82rem;color:#94a3b8;
-}
-.range-info .kv{display:flex;gap:4px}
-.range-info .kv .l{color:#475569}
-.range-info .kv .v{color:#cbd5e1;font-weight:500}
-
-.bar-section{margin-bottom:12px}
-.bar-label{display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:4px}
-.bar-label .l{color:#475569}
-.bar-label .v{color:#38bdf8;font-weight:600}
-.bar-track{
-  background:#0a0e17;border-radius:8px;
-  height:14px;overflow:hidden;position:relative;
-}
-.bar-fill{
-  height:100%;width:0%;
-  border-radius:8px;
-  transition:width .15s ease;
-  position:relative;
-}
-.bar-fill.worker1{background:linear-gradient(90deg,#38bdf8,#2dd4bf)}
-.bar-fill.worker2{background:linear-gradient(90deg,#818cf8,#a78bfa)}
-.bar-fill.worker3{background:linear-gradient(90deg,#f472b6,#fb7185)}
-.bar-fill.worker4{background:linear-gradient(90deg,#fbbf24,#fb923c)}
-
-.card-stats{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-}
-.stat-box{
-  background:rgba(10,14,23,0.6);
-  border-radius:8px;padding:8px 10px;
-  text-align:center;
-}
-.stat-box .num{font-size:1.1rem;font-weight:700;color:#e2e8f0}
-.stat-box .lbl{font-size:0.68rem;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
-.stat-box .num.prime{color:#4ade80}
-.stat-box .num.checked{color:#38bdf8}
-
-/* ── Bottom Panel ── */
-.bottom-panels{display:grid;grid-template-columns:1.2fr 0.8fr;gap:14px;margin-bottom:24px}
-@media(max-width:768px){.bottom-panels{grid-template-columns:1fr}}
-
-.panel{
-  background:linear-gradient(145deg,#111b2e,#0f172a);
-  border:1px solid #1e293b;border-radius:14px;padding:20px;
-}
-.panel h3{
-  font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;
-  color:#475569;margin-bottom:12px;display:flex;align-items:center;gap:8px;
-}
-.panel h3 .hl{color:#38bdf8}
-
-/* ── Terminal ── */
-.terminal{
-  background:#05080f;border-radius:8px;
-  padding:14px;height:180px;overflow-y:auto;
-  font-family:'JetBrains Mono','Fira Code','Cascadia Code',monospace;
-  font-size:0.78rem;line-height:1.7;
-}
-.terminal::-webkit-scrollbar{width:4px}
-.terminal::-webkit-scrollbar-track{background:transparent}
-.terminal::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
-.terminal .line{opacity:0;animation:fadeIn .3s forwards;color:#94a3b8}
-.terminal .line.info{color:#7dd3fc}
-.terminal .line.ok{color:#4ade80}
-.terminal .line.warn{color:#fbbf24}
-.terminal .line.result{color:#a78bfa;font-weight:600}
-@keyframes fadeIn{to{opacity:1}}
-
-/* ── Summary ── */
-.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.summary-item{
-  background:rgba(10,14,23,0.6);border-radius:10px;padding:14px;
-  text-align:center;
-}
-.summary-item .num{
-  font-size:1.8rem;font-weight:800;
-  background:linear-gradient(135deg,#38bdf8,#818cf8);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-.summary-item .num.green{background:linear-gradient(135deg,#4ade80,#22c55e);-webkit-background-clip:text;background-clip:text}
-.summary-item .num.orange{background:linear-gradient(135deg,#fbbf24,#fb923c);-webkit-background-clip:text;background-clip:text}
-.summary-item .lbl{font-size:0.72rem;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
-
-/* ── Status Bar ── */
-.status-bar{
-  margin-top:12px;padding-top:12px;
-  border-top:1px solid #1e293b;
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:0.82rem;flex-wrap:wrap;gap:8px;
-}
-.status-bar .indicator{display:flex;align-items:center;gap:8px}
-.dot{
-  width:8px;height:8px;border-radius:50%;
-  background:#475569;transition:background .3s;
-}
-.dot.running{background:#38bdf8;box-shadow:0 0 8px rgba(56,189,248,0.5);animation:pulse 1.5s infinite}
-.dot.done{background:#4ade80}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-.footer{
-  text-align:center;color:#1e293b;font-size:0.78rem;padding:8px 0;
-}
-.footer a{color:#475569;text-decoration:none}
-.footer a:hover{color:#38bdf8}
+/* ── Hidden ── */
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 <div class="container">
 
-<!-- ── HEADER ── -->
+<!-- ═══ HEADER ═══ -->
 <div class="header">
-  <div class="header-top">
+  <div class="htop">
     <div>
       <h1>Parallel Prime Number Finder</h1>
-      <div class="sub">Java Multithreading · <span>1 to 100000</span> · <span>4 Threads</span></div>
+      <div class="sub">Java Multithreading · <span id="rangeLabel">1 to 100000</span> · <span id="threadLabel">4 Threads</span></div>
     </div>
-    <div class="header-badges">
-      <span class="badge"><i>🧵</i> Thread Pool</span>
-      <span class="badge"><i>⚡</i> ExecutorService</span>
-      <span class="badge"><i>📊</i> Live Demo</span>
+    <div class="badges">
+      <span class="badge">🧵 Thread Pool</span>
+      <span class="badge">⚡ ExecutorService</span>
+      <span class="badge">📊 Live Demo</span>
     </div>
   </div>
+
+  <!-- Custom Input -->
   <div class="controls">
-    <button class="btn btn-start" id="btnStart" onclick="startAll()">▶ Start Parallel Execution</button>
-    <button class="btn btn-reset" id="btnReset" onclick="resetAll()">↻ Reset</button>
+    <div class="ctrl-group">
+      <label>Max Number</label>
+      <input type="number" id="inputMax" value="100000" min="1000" max="9999999" step="1000">
+    </div>
+    <div class="ctrl-group">
+      <label>Threads</label>
+      <select id="inputThreads">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="8">8</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="btnStart" onclick="startRun(false)">▶ Start</button>
+    <button class="btn btn-success" id="btnCompare" onclick="runComparison()">📊 Seq vs Parallel</button>
+    <button class="btn btn-secondary" onclick="resetAll()">↻ Reset</button>
   </div>
 </div>
 
-<!-- ── WORKER CARDS ── -->
+<!-- ═══ MODE TABS ═══ -->
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tabNormal" onclick="setMode('normal')">🚀 Standard Run</button>
+  <button class="mode-tab" id="tabCompare" onclick="setMode('compare')">📊 Comparison Mode</button>
+</div>
+
+<!-- ═══ WORKER CARDS ═══ -->
 <div class="grid" id="cardGrid"></div>
 
-<!-- ── BOTTOM PANELS ── -->
-<div class="bottom-panels">
+<!-- ═══ BOTTOM PANELS ═══ -->
+<div class="bot">
   <div class="panel">
-    <h3><span class="hl">⏎</span> Terminal Output</h3>
-    <div class="terminal" id="terminal"></div>
+    <h3><span class="h">⏎</span> Terminal Output</h3>
+    <div class="term" id="terminal"></div>
   </div>
   <div class="panel">
-    <h3><span class="hl">📊</span> Execution Summary</h3>
-    <div class="summary-grid">
-      <div class="summary-item"><div class="num green" id="totalPrimes">0</div><div class="lbl">Primes Found</div></div>
-      <div class="summary-item"><div class="num orange" id="totalChecked">0</div><div class="lbl">Numbers Checked</div></div>
-      <div class="summary-item"><div class="num" id="execTime">—</div><div class="lbl">Execution Time</div></div>
-      <div class="summary-item"><div class="num" id="throughput">—</div><div class="lbl">Throughput (num/ms)</div></div>
+    <h3><span class="h">📊</span> Execution Summary</h3>
+    <div id="summaryNormal">
+      <div class="sg">
+        <div class="si"><div class="n gn" id="totalPrimes">0</div><div class="lb">Primes Found</div></div>
+        <div class="si"><div class="n or" id="totalChecked">0</div><div class="lb">Numbers Checked</div></div>
+        <div class="si"><div class="n" id="execTime">—</div><div class="lb">Execution Time</div></div>
+        <div class="si"><div class="n" id="throughput">—</div><div class="lb">Throughput (num/ms)</div></div>
+      </div>
     </div>
-    <div class="status-bar">
-      <div class="indicator"><span class="dot" id="statusDot"></span><span id="statusText">Waiting to start</span></div>
-      <span style="color:#475569;font-size:0.75rem" id="elapsedTime"></span>
+    <!-- Comparison Results (hidden by default) -->
+    <div id="summaryCompare" class="hidden">
+      <div class="comp-grid">
+        <div class="comp-box"><div class="n blue" id="compSeqTime">—</div><div class="lb">Sequential (1 thread)</div></div>
+        <div class="comp-box"><div class="n orange" id="compParTime">—</div><div class="lb">Parallel (<span id="compThreadCount">4</span> threads)</div></div>
+        <div class="comp-box"><div class="n green" id="compSpeedup">—</div><div class="lb">Speedup ×</div></div>
+      </div>
+      <div style="text-align:center;padding:4px 0;color:#475569;font-size:.7rem;letter-spacing:.5px" id="compDetail"></div>
+    </div>
+    <div class="sbar">
+      <div class="ind"><span class="dot" id="statusDot"></span><span id="statusText">Ready</span></div>
+      <span style="color:#475569;font-size:.72rem" id="elapsedTime"></span>
     </div>
   </div>
 </div>
 
-<div class="footer">
+<!-- ═══ PRIME LIST ═══ -->
+<div class="prime-section">
+  <div class="prime-toggle" onclick="togglePrimeList()">
+    <span>🔢 Show Found Primes</span>
+    <span class="arr" id="primeArrow">▼</span>
+  </div>
+  <div class="prime-body" id="primeBody">
+    <div class="prime-search">
+      <input type="text" id="primeSearch" placeholder="Search prime number..." oninput="filterPrimes()">
+      <span style="color:#475569;font-size:.75rem;display:flex;align-items:center" id="primeTotalCount">0 primes</span>
+    </div>
+    <div class="prime-list-wrap" id="primeList"></div>
+  </div>
+</div>
+
+<div class="foot">
   <a href="https://github.com/MikaelaHykuya/Parallel-Prime-Finder" target="_blank">GitHub</a>
-   · Parallel Computing Project
+   · Parallel Computing Project · Java Multithreading
 </div>
 </div>
 
 <script>
-// ── Web Worker ───────────────────────────────────────────────────────
-const blob = new Blob([`
-  self.onmessage=function(e){
-    const{id,start,end}=e.data;
-    const primes=[];let checked=0;const total=end-start+1;
-    function p(n){
-      if(n<2)return 0;
-      if(n===2)return 1;
-      if(n%2===0)return 0;
-      for(let i=3;i*i<=n;i+=2)if(n%i===0)return 0;
-      return 1;
-    }
-    for(let n=start;n<=end;n++){
-      if(p(n))primes.push(n);checked++;
-      if(checked%Math.max(1,Math.floor(total/120))===0||n===end)
-        self.postMessage({id,progress:checked/total*100,primes,checked});
-    }
-    self.postMessage({id,progress:100,primes,checked,done:1});
-  };
-`],{type:'application/javascript'});
-const url=URL.createObjectURL(blob);
+// ═══════════════════════════════════════════════════════════════════════
+//  Web Worker (inline)
+// ═══════════════════════════════════════════════════════════════════════
+const BLOB=new Blob([`
+self.onmessage=function(e){
+  var d=e.data,id=d.id,start=d.start,end=d.end,primes=[],checked=0,total=end-start+1;
+  function p(n){if(n<2)return 0;if(n==2)return 1;if(n%2==0)return 0;for(var i=3;i*i<=n;i+=2)if(n%i==0)return 0;return 1}
+  for(var n=start;n<=end;n++){if(p(n))primes.push(n);checked++;if(checked%Math.max(1,Math.floor(total/100))==0||n==end)self.postMessage({id:id,prog:checked/total*100,primes:primes,ckd:checked})}
+  self.postMessage({id:id,prog:100,primes:primes,ckd:checked,done:1})
+}`],{type:'application/javascript'});
+const WURL=URL.createObjectURL(BLOB);
 
-// ── Config ──
-const THREADS=[
-  {id:1,start:1,end:25000,color:'#38bdf8',barClass:'worker1',r:'2762'},
-  {id:2,start:25001,end:50000,color:'#818cf8',barClass:'worker2',r:'2371'},
-  {id:3,start:50001,end:75000,color:'#f472b6',barClass:'worker3',r:'2260'},
-  {id:4,start:75001,end:100000,color:'#fbbf24',barClass:'worker4',r:'2199'},
-  ];
-const TOTAL_NUM=100000;
-let workers=[],started=0,doneCount=0,startTime=0;
+// ═══════════════════════════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════════════════════════
+let workers=[],started=0,doneCount=0,startTime=0,allPrimes=[];
+let currentMode='normal'; // 'normal' | 'compare'
+let comparePhase=0; // 0=idle,1=running-seq,2=running-par
 
-// ── DOM ──
-const grid=document.getElementById('cardGrid');
-const term=document.getElementById('terminal');
-const btnStart=document.getElementById('btnStart');
-const btnReset=document.getElementById('btnReset');
-const elTotalPrimes=document.getElementById('totalPrimes');
-const elTotalChecked=document.getElementById('totalChecked');
-const elExecTime=document.getElementById('execTime');
-const elThroughput=document.getElementById('throughput');
-const elStatus=document.getElementById('statusText');
-const elDot=document.getElementById('statusDot');
-const elElapsed=document.getElementById('elapsedTime');
+// ═══════════════════════════════════════════════════════════════════════
+//  DOM
+// ═══════════════════════════════════════════════════════════════════════
+const $=(id)=>document.getElementById(id);
+const grid=$('cardGrid'),term=$('terminal');
+const btnStart=$('btnStart'),btnCompare=$('btnCompare');
+const inputMax=$('inputMax'),inputThreads=$('inputThreads');
+const rangeLabel=$('rangeLabel'),threadLabel=$('threadLabel');
+const elTP=$('totalPrimes'),elTC=$('totalChecked'),elET=$('execTime'),elTH=$('throughput');
+const elCTime=$('elapsedTime'),elStat=$('statusText'),elDot=$('statusDot');
+const compSeqTime=$('compSeqTime'),compParTime=$('compParTime'),compSpeedup=$('compSpeedup'),compDetail=$('compDetail'),compThreadCount=$('compThreadCount');
+const primeBody=$('primeBody'),primeList=$('primeList'),primeSearch=$('primeSearch'),primeTotal=$('primeTotalCount'),primeArrow=$('primeArrow');
 
-// ── Build Cards ──
-function build(){
+// ═══════════════════════════════════════════════════════════════════════
+//  Build Cards
+// ═══════════════════════════════════════════════════════════════════════
+function getThreads(){
+  const max=parseInt(inputMax.value)||100000;
+  const n=parseInt(inputThreads.value)||4;
+  const size=Math.floor(max/n);
+  const arr=[];
+  const colors=['#38bdf8','#818cf8','#f472b6','#fbbf24','#34d399','#f97316','#a78bfa','#ec4899'];
+  const cls=['w1','w2','w3','w4','w1','w2','w3','w4'];
+  for(let i=0;i<n;i++){
+    const s=i*size+1;
+    const e=i===n-1?max:(i+1)*size;
+    arr.push({id:i+1,start:s,end:e,color:colors[i%8],barClass:cls[i%4]});
+  }
+  return arr;
+}
+
+function buildCards(){
   grid.innerHTML='';
-  THREADS.forEach(t=>{
+  const threads=getThreads();
+  threads.forEach(t=>{
     const c=document.createElement('div');c.className='card';c.id='card-'+t.id;
-    c.innerHTML=`
-      <div class="card-head">
-        <div class="card-title">
-          <div class="icon idle" id="icon-${t.id}">🧵</div>
-          <span>Worker Thread #${t.id}</span>
-        </div>
-        <span class="status waiting" id="status-${t.id}">Waiting</span>
-      </div>
-      <div class="range-info">
-        <span class="kv"><span class="l">Range</span><span class="v">${t.start.toLocaleString()} – ${t.end.toLocaleString()}</span></span>
-        <span class="kv"><span class="l">Size</span><span class="v">${(t.end-t.start+1).toLocaleString()}</span></span>
-      </div>
-      <div class="bar-section">
-        <div class="bar-label"><span class="l">Progress</span><span class="v" id="pct-${t.id}">0%</span></div>
-        <div class="bar-track"><div class="bar-fill ${t.barClass}" id="bar-${t.id}"></div></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="num checked" id="cnt-${t.id}">0</div><div class="lbl">Numbers Checked</div></div>
-        <div class="stat-box"><div class="num prime" id="found-${t.id}">0</div><div class="lbl">Primes Found</div></div>
-      </div>
-    `;
+    c.innerHTML=
+      '<div class="ch"><div class="nm"><div class="ic idle" id="icon-'+t.id+'">🧵</div><span>Worker Thread #'+t.id+'</span></div><span class="st wait" id="status-'+t.id+'">Waiting</span></div>'+
+      '<div class="rf"><span class="kv"><span class="l">Range</span><span class="v">'+t.start.toLocaleString()+' – '+t.end.toLocaleString()+'</span></span><span class="kv"><span class="l">Size</span><span class="v">'+(t.end-t.start+1).toLocaleString()+'</span></span></div>'+
+      '<div class="bl"><span class="l">Progress</span><span class="v" id="pct-'+t.id+'">0%</span></div>'+
+      '<div class="bt"><div class="bf '+t.barClass+'" id="bar-'+t.id+'"></div></div>'+
+      '<div class="cs"><div class="sb"><div class="n bl" id="cnt-'+t.id+'">0</div><div class="lb">Numbers Checked</div></div><div class="sb"><div class="n gr" id="found-'+t.id+'">0</div><div class="lb">Primes Found</div></div></div>';
     grid.appendChild(c);
   });
 }
 
-// ── Terminal ──
-function log(msg,cls='info'){
-  const d=document.createElement('div');d.className='line '+cls;
+// ═══════════════════════════════════════════════════════════════════════
+//  Terminal
+// ═══════════════════════════════════════════════════════════════════════
+function log(msg,cls='i'){
+  const d=document.createElement('div');d.className='ln '+cls;
   d.textContent='> '+msg;term.appendChild(d);term.scrollTop=term.scrollHeight;
 }
 function clearTerm(){term.innerHTML=''}
 
-// ── Start ──
-function startAll(){
+// ═══════════════════════════════════════════════════════════════════════
+//  Start Run
+// ═══════════════════════════════════════════════════════════════════════
+function startRun(isCompare){
   if(started)return;
-  started=1;doneCount=0;startTime=performance.now();
-  clearTerm();
-  log('Initialising thread pool...','info');
-  log('MAX_NUMBER = 100000','info');
-  log('THREAD_COUNT = 4','info');
-  log('rangeSize = 25000','info');
-  log('Spawning 4 PrimeFinder tasks...','info');
-  log('────────────────────────────────','info');
-  btnStart.disabled=true;
-  btnReset.classList.add('running');
-  elStatus.textContent='Running…';
-  elDot.className='dot running';
-  elExecTime.textContent='—';
-  elThroughput.textContent='—';
+  const max=parseInt(inputMax.value)||100000;
+  const threads=getThreads();
+  rangeLabel.textContent='1 to '+max.toLocaleString();
+  threadLabel.textContent=threads.length+' Threads';
 
-  THREADS.forEach(t=>{
-    const w=new Worker(url);
+  buildCards();
+  started=1;doneCount=0;allPrimes=[];
+  startTime=performance.now();
+
+  clearTerm();
+  log('ExecutorService.newFixedThreadPool('+threads.length+')','i');
+  log('MAX_NUMBER = '+max,'i');
+  log('THREAD_COUNT = '+threads.length,'i');
+  log('rangeSize = '+Math.floor(max/threads.length),'i');
+  log('────────────────────────────────────────','i');
+  log('Submitting '+threads.length+' PrimeFinder tasks...','i');
+
+  btnStart.disabled=true;
+  btnCompare.disabled=true;
+  inputMax.disabled=true;
+  inputThreads.disabled=true;
+  $('tabNormal').disabled=true;
+  $('tabCompare').disabled=true;
+
+  elStat.textContent=isCompare?(comparePhase===1?'Sequential run (1 thread)...':'Parallel run ('+threads.length+' threads)...'):'Running…';
+  elDot.className='dot run';
+  elET.textContent='—';elTH.textContent='—';
+
+  threads.forEach(t=>{
+    const w=new Worker(WURL);
     workers.push(w);
     w.onmessage=function(e){
       const d=e.data;
       if(d.id!==t.id)return;
-      const pct=d.progress;
-      document.getElementById('bar-'+t.id).style.width=pct+'%';
-      document.getElementById('pct-'+t.id).textContent=Math.round(pct)+'%';
-      document.getElementById('cnt-'+t.id).textContent=d.checked.toLocaleString();
+      document.getElementById('bar-'+t.id).style.width=d.prog+'%';
+      document.getElementById('pct-'+t.id).textContent=Math.round(d.prog)+'%';
+      document.getElementById('cnt-'+t.id).textContent=d.ckd.toLocaleString();
       document.getElementById('found-'+t.id).textContent=d.primes.length.toLocaleString();
 
-      if(pct<100){
+      if(d.prog<100){
         document.getElementById('card-'+t.id).className='card running';
-        document.getElementById('icon-'+t.id).className='icon busy';
-        document.getElementById('status-'+t.id).className='status running';
+        document.getElementById('icon-'+t.id).className='ic busy';
+        document.getElementById('status-'+t.id).className='st run';
         document.getElementById('status-'+t.id).textContent='Scanning…';
       }
       if(d.done){
         doneCount++;
         document.getElementById('card-'+t.id).className='card done';
-        document.getElementById('icon-'+t.id).className='icon done';
-        document.getElementById('status-'+t.id).className='status done';
-        document.getElementById('status-'+t.id).textContent='✅ Completed';
-        log(`Thread ${t.id} finished — ${d.primes.length} primes found in range ${t.start.toLocaleString()}–${t.end.toLocaleString()}`,d.primes.length?'ok':'warn');
-
-        if(doneCount===THREADS.length){
+        document.getElementById('icon-'+t.id).className='ic done';
+        document.getElementById('status-'+t.id).className='st done';
+        document.getElementById('status-'+t.id).textContent='✅ Done';
+        allPrimes=allPrimes.concat(d.primes);
+        log('Thread #'+t.id+' — '+d.primes.length+' primes in '+
+            t.start.toLocaleString()+'–'+t.end.toLocaleString(),d.primes.length?'o':'w');
+        if(doneCount===threads.length){
           const elapsed=performance.now()-startTime;
-          const totalP=THREADS.reduce((s,th)=>s+parseInt(document.getElementById('found-'+th.id).textContent.replace(/,/g,'')||'0'),0);
-          elExecTime.textContent=elapsed.toFixed(1)+' ms ('+(elapsed/1000).toFixed(3)+' s)';
-          elThroughput.textContent=(TOTAL_NUM/elapsed).toFixed(1);
-          elStatus.textContent='✅ All threads completed successfully';
+          const totalP=allPrimes.length;
+          const totalC=threads.reduce((s,th)=>s+parseInt(
+            (document.getElementById('cnt-'+th.id).textContent||'0').replace(/,/g,''),10),0);
+
+          if(isCompare){
+            if(comparePhase===1){
+              // Sequential done
+              compSeqTime.textContent=elapsed.toFixed(1)+' ms';
+              log('────────────────────────────────────────','i');
+              log('SEQUENTIAL (1 thread): '+totalP+' primes in '+elapsed.toFixed(1)+' ms','r');
+              log('Now running parallel ('+threads.length+' threads)...','i');
+              comparePhase=2;
+              // Reset and run parallel
+              started=0;workers.forEach(w=>w.terminate());workers=[];
+              inputThreads.value=threads.length;
+              startRun(true);
+              return;
+            } else {
+              // Parallel done
+              compParTime.textContent=elapsed.toFixed(1)+' ms';
+              compThreadCount.textContent=threads.length;
+              const seqMs=parseFloat(compSeqTime.textContent);
+              const parMs=parseFloat(elapsed.toFixed(1));
+              const spd=seqMs/parMs;
+              compSpeedup.textContent=spd.toFixed(2)+'×';
+              compDetail.textContent='Parallel is '+spd.toFixed(2)+'× faster than sequential';
+              log('────────────────────────────────────────','i');
+              log('PARALLEL ('+threads.length+' threads): '+totalP+' primes in '+elapsed.toFixed(1)+' ms','r');
+              log('SPEEDUP: '+spd.toFixed(2)+'× — '+
+                  'Seq: '+seqMs.toFixed(1)+'ms / Par: '+parMs.toFixed(1)+'ms','r');
+              // show comparison panel
+              $('summaryNormal').classList.add('hidden');
+              $('summaryCompare').classList.remove('hidden');
+              elStat.textContent='✅ Comparison complete — '+spd.toFixed(2)+'× speedup';
+            }
+          } else {
+            // Normal run
+            elET.textContent=elapsed.toFixed(1)+' ms ('+(elapsed/1000).toFixed(3)+' s)';
+            elTH.textContent=(totalC/elapsed).toFixed(1);
+            log('────────────────────────────────────────','i');
+            log('TOTAL: '+totalP+' primes found in '+elapsed.toFixed(1)+' ms','r');
+            log('Execution complete.','o');
+            elStat.textContent='✅ Completed — '+totalP+' primes';
+          }
+
+          elTP.textContent=totalP.toLocaleString();
+          elTC.textContent=totalC.toLocaleString();
           elDot.className='dot done';
-          btnReset.classList.remove('running');
+          elCTime.textContent='⏱ '+elapsed.toFixed(0)+' ms';
           btnStart.disabled=false;
-          log('────────────────────────────────','info');
-          log(`TOTAL: ${totalP} primes found in ${elapsed.toFixed(1)} ms (${(elapsed/1000).toFixed(3)} s)`,`result`);
-          log('Parallel execution complete.','ok');
+          btnCompare.disabled=false;
+          inputMax.disabled=false;
+          inputThreads.disabled=false;
+          $('tabNormal').disabled=false;
+          $('tabCompare').disabled=false;
+          comparePhase=0;
+
+          // Update prime list
+          updatePrimeList();
         }
       }
-      // total aggregation
-      let tc=0,tp=0;
-      THREADS.forEach(th=>{
-        tc+=parseInt(document.getElementById('cnt-'+th.id).textContent.replace(/,/g,'')||'0');
-        tp+=parseInt(document.getElementById('found-'+th.id).textContent.replace(/,/g,'')||'0');
-      });
-      elTotalPrimes.textContent=tp.toLocaleString();
-      elTotalChecked.textContent=tc.toLocaleString();
-      elElapsed.textContent='⏱ '+(performance.now()-startTime).toFixed(0)+' ms';
+      // Live totals
+      if(!isCompare||comparePhase!==1){
+        let tc=0,tp=0;
+        getThreads().forEach(th=>{
+          tc+=parseInt((document.getElementById('cnt-'+th.id).textContent||'0').replace(/,/g,''),10);
+          tp+=parseInt((document.getElementById('found-'+th.id).textContent||'0').replace(/,/g,''),10);
+        });
+        elTP.textContent=tp.toLocaleString();
+        elTC.textContent=tc.toLocaleString();
+        elCTime.textContent='⏱ '+(performance.now()-startTime).toFixed(0)+' ms';
+      }
     };
     w.postMessage({id:t.id,start:t.start,end:t.end});
-    log(`Submitted Thread #${t.id}: range ${t.start.toLocaleString()}–${t.end.toLocaleString()}`,'info');
+    log('Thread #'+t.id+' → range '+t.start.toLocaleString()+'–'+t.end.toLocaleString(),'i');
   });
-  log('────────────────────────────────','info');
-  log('All threads started — parallel execution in progress...','info');
+  log('────────────────────────────────────────','i');
+  log('All threads submitted — executing in parallel...','i');
 }
 
-// ── Reset ──
+// ═══════════════════════════════════════════════════════════════════════
+//  Run Comparison (Seq first, then Parallel)
+// ═══════════════════════════════════════════════════════════════════════
+function runComparison(){
+  if(started)return;
+  setMode('compare');
+  const max=parseInt(inputMax.value)||100000;
+  const threads=parseInt(inputThreads.value)||4;
+  $('summaryNormal').classList.add('hidden');
+  $('summaryCompare').classList.remove('hidden');
+  compSeqTime.textContent='⏳';compParTime.textContent='—';compSpeedup.textContent='—';compDetail.textContent='';
+  log('══════ SEQUENTIAL vs PARALLEL COMPARISON ══════','r');
+  log('Step 1: Running SEQUENTIAL (1 thread)...','i');
+  comparePhase=1;
+  inputThreads.value='1';
+  startRun(true);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  Mode Switch
+// ═══════════════════════════════════════════════════════════════════════
+function setMode(mode){
+  if(started)return;
+  currentMode=mode;
+  $('tabNormal').className='mode-tab'+(mode==='normal'?' active':'');
+  $('tabCompare').className='mode-tab'+(mode==='compare'?' active':'');
+  $('summaryNormal').classList.toggle('hidden',mode!=='normal');
+  $('summaryCompare').classList.toggle('hidden',mode!=='compare');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  Reset
+// ═══════════════════════════════════════════════════════════════════════
 function resetAll(){
   workers.forEach(w=>w.terminate());workers=[];
-  started=0;doneCount=0;
-  btnStart.disabled=false;btnReset.classList.remove('running');
+  started=0;doneCount=0;allPrimes=[];comparePhase=0;
+  btnStart.disabled=false;btnCompare.disabled=false;
+  inputMax.disabled=false;inputThreads.disabled=false;
+  $('tabNormal').disabled=false;$('tabCompare').disabled=false;
+  buildCards();
   clearTerm();
-  log('System reset. Ready to start.','info');
-  elStatus.textContent='Waiting to start';
-  elDot.className='dot';
-  elTotalPrimes.textContent='0';
-  elTotalChecked.textContent='0';
-  elExecTime.textContent='—';
-  elThroughput.textContent='—';
-  elElapsed.textContent='';
-  THREADS.forEach(t=>{
-    document.getElementById('card-'+t.id).className='card';
-    document.getElementById('icon-'+t.id).className='icon idle';
-    document.getElementById('status-'+t.id).className='status waiting';
-    document.getElementById('status-'+t.id).textContent='Waiting';
-    document.getElementById('bar-'+t.id).style.width='0%';
-    document.getElementById('pct-'+t.id).textContent='0%';
-    document.getElementById('cnt-'+t.id).textContent='0';
-    document.getElementById('found-'+t.id).textContent='0';
-  });
+  log('System reset.','i');
+  log('Configure max number and thread count, then click Start.','i');
+  elStat.textContent='Ready';elDot.className='dot';
+  elTP.textContent='0';elTC.textContent='0';elET.textContent='—';elTH.textContent='—';elCTime.textContent='';
+  compSeqTime.textContent='—';compParTime.textContent='—';compSpeedup.textContent='—';compDetail.textContent='';
+  setMode(currentMode);
+  updatePrimeList();
 }
 
-build();
-log('System ready. 4 worker threads configured.','info');
-log('Click "▶ Start Parallel Execution" to begin.','info');
+// ═══════════════════════════════════════════════════════════════════════
+//  Prime List
+// ═══════════════════════════════════════════════════════════════════════
+function togglePrimeList(){
+  const open=primeBody.classList.toggle('open');
+  primeArrow.className='arr'+(open?' open':'');
+}
+
+function updatePrimeList(){
+  primeList.innerHTML='';
+  if(!allPrimes.length){primeTotal.textContent='0 primes';return}
+  allPrimes.sort((a,b)=>a-b);
+  allPrimes.forEach(p=>{
+    const el=document.createElement('span');el.className='prime-item';
+    el.textContent=p;el.dataset.val=p;
+    primeList.appendChild(el);
+  });
+  filterPrimes();
+}
+
+function filterPrimes(){
+  const q=primeSearch.value.trim();
+  const items=primeList.querySelectorAll('.prime-item');
+  let vis=0;
+  items.forEach(el=>{
+    const match=!q||el.dataset.val.includes(q);
+    el.style.display=match?'inline-block':'none';
+    if(match)vis++;
+  });
+  primeTotal.textContent=vis+' / '+allPrimes.length+' primes';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  Init
+// ═══════════════════════════════════════════════════════════════════════
+buildCards();
+log('Parallel Prime Number Finder','r');
+log('Java Multithreading · ExecutorService · FixedThreadPool(4)','i');
+log('────────────────────────────────────────','i');
+log('Configure settings above, then click Start or Seq vs Parallel.','i');
+log('','i');
+log('📌 TIPS:','i');
+log('  • "Start" — runs with your configuration','i');
+log('  • "Seq vs Parallel" — compares 1 thread vs N threads','i');
+log('  • Click "Show Found Primes" to browse results','i');
 </script>
 </body>
 </html>
