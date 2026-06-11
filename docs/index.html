@@ -289,6 +289,7 @@ const WURL=URL.createObjectURL(BLOB);
 let workers=[],started=0,doneCount=0,startTime=0,allPrimes=[];
 let currentMode='normal'; // 'normal' | 'compare'
 let comparePhase=0; // 0=idle,1=running-seq,2=running-par
+let savedThreadCount=4; // original thread count for comparison restore
 
 // ═══════════════════════════════════════════════════════════════════════
 //  DOM
@@ -416,26 +417,27 @@ function startRun(isCompare){
               compSeqTime.textContent=elapsed.toFixed(1)+' ms';
               log('────────────────────────────────────────','i');
               log('SEQUENTIAL (1 thread): '+totalP+' primes in '+elapsed.toFixed(1)+' ms','r');
-              log('Now running parallel ('+threads.length+' threads)...','i');
               comparePhase=2;
-              // Reset and run parallel
+              // Reset, restore thread count, and run parallel
               started=0;workers.forEach(w=>w.terminate());workers=[];
-              inputThreads.value=threads.length;
+              inputThreads.value=savedThreadCount;
+              log('Now running parallel ('+savedThreadCount+' threads)...','i');
               startRun(true);
               return;
             } else {
               // Parallel done
-              compParTime.textContent=elapsed.toFixed(1)+' ms';
-              compThreadCount.textContent=threads.length;
-              const seqMs=parseFloat(compSeqTime.textContent);
-              const parMs=parseFloat(elapsed.toFixed(1));
-              const spd=seqMs/parMs;
+              const parElapsed=elapsed;
+              compParTime.textContent=parElapsed.toFixed(1)+' ms';
+              compThreadCount.textContent=savedThreadCount;
+              const seqStr=compSeqTime.textContent.replace(' ms','');
+              const seqMs=parseFloat(seqStr);
+              const spd=seqMs/parElapsed;
               compSpeedup.textContent=spd.toFixed(2)+'×';
-              compDetail.textContent='Parallel is '+spd.toFixed(2)+'× faster than sequential';
+              compDetail.textContent='Parallel ('+savedThreadCount+' threads) is '+spd.toFixed(2)+'× faster than sequential (1 thread)';
               log('────────────────────────────────────────','i');
-              log('PARALLEL ('+threads.length+' threads): '+totalP+' primes in '+elapsed.toFixed(1)+' ms','r');
+              log('PARALLEL ('+savedThreadCount+' threads): '+totalP+' primes in '+parElapsed.toFixed(1)+' ms','r');
               log('SPEEDUP: '+spd.toFixed(2)+'× — '+
-                  'Seq: '+seqMs.toFixed(1)+'ms / Par: '+parMs.toFixed(1)+'ms','r');
+                  'Seq: '+seqMs.toFixed(1)+'ms / Par: '+parElapsed.toFixed(1)+'ms','r');
               // show comparison panel
               $('summaryNormal').classList.add('hidden');
               $('summaryCompare').classList.remove('hidden');
@@ -492,8 +494,7 @@ function startRun(isCompare){
 function runComparison(){
   if(started)return;
   setMode('compare');
-  const max=parseInt(inputMax.value)||100000;
-  const threads=parseInt(inputThreads.value)||4;
+  savedThreadCount=parseInt(inputThreads.value)||4;
   $('summaryNormal').classList.add('hidden');
   $('summaryCompare').classList.remove('hidden');
   compSeqTime.textContent='⏳';compParTime.textContent='—';compSpeedup.textContent='—';compDetail.textContent='';
@@ -512,8 +513,13 @@ function setMode(mode){
   currentMode=mode;
   $('tabNormal').className='mode-tab'+(mode==='normal'?' active':'');
   $('tabCompare').className='mode-tab'+(mode==='compare'?' active':'');
-  $('summaryNormal').classList.toggle('hidden',mode!=='normal');
-  $('summaryCompare').classList.toggle('hidden',mode!=='compare');
+  if(mode==='normal'){
+    $('summaryNormal').classList.remove('hidden');
+    $('summaryCompare').classList.add('hidden');
+  } else {
+    $('summaryNormal').classList.add('hidden');
+    $('summaryCompare').classList.remove('hidden');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -522,6 +528,7 @@ function setMode(mode){
 function resetAll(){
   workers.forEach(w=>w.terminate());workers=[];
   started=0;doneCount=0;allPrimes=[];comparePhase=0;
+  inputThreads.value=savedThreadCount;
   btnStart.disabled=false;btnCompare.disabled=false;
   inputMax.disabled=false;inputThreads.disabled=false;
   $('tabNormal').disabled=false;$('tabCompare').disabled=false;
@@ -532,7 +539,8 @@ function resetAll(){
   elStat.textContent='Ready';elDot.className='dot';
   elTP.textContent='0';elTC.textContent='0';elET.textContent='—';elTH.textContent='—';elCTime.textContent='';
   compSeqTime.textContent='—';compParTime.textContent='—';compSpeedup.textContent='—';compDetail.textContent='';
-  setMode(currentMode);
+  $('summaryNormal').classList.remove('hidden');
+  $('summaryCompare').classList.add('hidden');
   updatePrimeList();
 }
 
