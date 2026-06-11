@@ -1,135 +1,84 @@
-# Parallel Prime Number Finder using Multiprocessing
+# Parallel Prime Number Finder using Multithreading
 
 [![Run Parallel Prime Finder](https://github.com/MikaelaHykuya/Parallel-Prime-Finder/actions/workflows/run.yml/badge.svg)](https://github.com/MikaelaHykuya/Parallel-Prime-Finder/actions/workflows/run.yml)
+[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-blue)](https://mikaelahykuya.github.io/Parallel-Prime-Finder/)
 
-A Python-based parallel computing project that demonstrates multiprocessing by splitting the task of finding prime numbers from 1 to 100,000 across 4 worker processes.  
-**See it run live** → [GitHub Actions Tab](https://github.com/MikaelaHykuya/Parallel-Prime-Finder/actions/workflows/run.yml)
+A Java parallel computing project that finds all prime numbers from **1 to 100,000** by splitting the workload across **4 threads** using `ExecutorService`.
+
+🌐 **Live Demo:** https://mikaelahykuya.github.io/Parallel-Prime-Finder/
 
 ## Project Description
 
-This program finds all prime numbers in the range 1–100,000 by dividing the workload among 4 OS-level processes using Python's `multiprocessing` module. Each worker handles a distinct sub-range, and results are collected via a shared `Queue`. Execution time is measured to demonstrate the speedup from parallel processing.
+The program divides the range 1–100,000 into 4 equal sub-ranges, assigns each to a separate thread, and measures total execution time. Each thread reports its ID, the range it processed, and how many primes it found.
 
 ## Objectives
 
-- Implement **multiprocessing** in Python using `Process`, `Queue`, and `join()`.
+- Demonstrate **multithreading** in Java using `ExecutorService`.
 - Practice **workload decomposition** — splitting a large task into independent chunks.
-- Measure **execution time** to observe parallel speedup.
-- Learn **inter-process communication** via `Queue`.
-- Produce a well-documented project suitable for a university Parallel Computing course.
-
-## Parallel Computing Concept
-
-Parallel computing breaks a large problem into smaller independent tasks that run simultaneously on multiple CPU cores.
-
-| Concept | Implementation |
-|---------|---------------|
-| **Decomposition** | Range 1–100,000 split into 4 equal sub-ranges |
-| **Assignment** | Each sub-range → one `Process` |
-| **Concurrency** | Processes execute in parallel on separate cores |
-| **Synchronisation** | `Process.join()` blocks until all workers finish |
-| **Communication** | `Queue` transfers results from workers to main |
-| **Aggregation** | Results are sorted by process ID and displayed |
-
-> **Note:** Python's Global Interpreter Lock (GIL) limits `threading` for CPU-bound tasks, so this project uses `multiprocessing` (separate OS processes) for true parallelism.
-
-## Program Workflow
-
-```
- ┌─────────────────────────────────────────────┐
- │                  main.py                    │
- │  Spawn 4 Processes, each with a sub-range   │
- └─────┬─────────┬─────────┬─────────┬─────────┘
-       │         │         │         │
-   Process 1  Process 2  Process 3  Process 4
-   (1-25000)  (25001-    (50001-    (75001-
-               50000)     75000)     100000)
-       │         │         │         │
-       └─────────┴─────────┴─────────┘
-                    │
-               ┌────┴────┐
-               │  join() │  ← synchronisation
-               └────┬────┘
-                    │
-               ┌────┴────┐
-               │ Queue   │
-               │ collect │
-               └────┬────┘
-                    │
-               ┌────┴────┐
-               │ Display │
-               │ Results │
-               └─────────┘
-```
-
-1. **main.py** divides 1–100,000 into 4 equal parts.
-2. 4 `Process` objects are created, each running `find_primes_in_range()`.
-3. All processes start simultaneously — the OS schedules them across cores.
-4. **main.py** calls `.join()` on each process — this is the synchronisation barrier.
-5. Results are pulled from the shared `Queue`, sorted, and displayed.
-6. Total execution time is printed.
+- Measure **execution time** to observe speedup from parallel execution.
+- Produce a well-documented project suitable for a Parallel Computing course.
 
 ## Folder Structure
 
 ```
 Parallel-Prime-Finder/
-│
 ├── src/
-│   ├── main.py           # Entry point – creates processes, measures time
-│   └── prime_finder.py   # is_prime() + worker function
-│
+│   ├── Main.java           # Entry point — ExecutorService, timing
+│   └── PrimeFinder.java    # Runnable — prime detection logic
 ├── docs/
-│   └── index.md          # GitHub Pages documentation
-│
-├── screenshots/          # Place your screenshots here
-│
+│   ├── index.html          # Interactive website (Web Workers)
+│   └── documentation.md    # Full written documentation
+├── .github/workflows/
+│   └── run.yml             # GitHub Actions — compile & run
 ├── .gitignore
-├── requirements.txt
 └── README.md
 ```
 
 ## How to Run
 
 ### Prerequisites
+- **JDK 8+** installed
 
-- **Python 3.8+** installed on your system.
-- No external packages required (stdlib only).
-
-### Execution
-
+### Compile & Run
 ```bash
-cd Parallel-Prime-Finder
-python src/main.py
+javac -d out src/PrimeFinder.java src/Main.java
+java -cp out Main
 ```
 
-## Expected Output
-
+### Expected Output
 ```
 ============================================
   Parallel Prime Number Finder
-  Range: 1 to 100000
-  Processes: 4
+  Range       : 1 to 100000
+  Threads     : 4
 ============================================
+
+Thread 1 processing range: 1 to 25000
+Thread 2 processing range: 25001 to 50000
+Thread 3 processing range: 50001 to 75000
+Thread 4 processing range: 75001 to 100000
+Thread 1 found 2762 primes.
+Thread 3 found 2260 primes.
+Thread 2 found 2371 primes.
+Thread 4 found 2199 primes.
 
 ============================================
   RESULTS
 ============================================
 
-Process ID     : 1
+Thread ID      : 1
 Range          : 1 - 25000
 Primes Found   : 2762
 -----------------------------
-
-Process ID     : 2
+Thread ID      : 2
 Range          : 25001 - 50000
 Primes Found   : 2371
 -----------------------------
-
-Process ID     : 3
+Thread ID      : 3
 Range          : 50001 - 75000
 Primes Found   : 2260
 -----------------------------
-
-Process ID     : 4
+Thread ID      : 4
 Range          : 75001 - 100000
 Primes Found   : 2199
 -----------------------------
@@ -142,13 +91,11 @@ Total Execution    : XX ms (X.XX s)
 ============================================
 ```
 
-> **Note:** Execution time varies by CPU, core count, and system load.
+## GitHub Pages
 
-## Screenshots
+The interactive website uses **4 Web Workers** to run the prime finder **live in your browser** — showing real-time progress bars, per-worker prime counts, and total execution time.
 
-| Step | Screenshot |
-|------|-----------|
-| Execution | `screenshots/execution.png` |
+👉 https://mikaelahykuya.github.io/Parallel-Prime-Finder/
 
 ## License
 

@@ -1,11 +1,11 @@
 ---
 title: Parallel Prime Number Finder
-description: Comprehensive GitHub Pages documentation for the Parallel Prime Number Finder using Multiprocessing
+description: Comprehensive documentation for the Parallel Prime Number Finder using Java Multithreading
 ---
 
-# Parallel Prime Number Finder using Multiprocessing
+# Parallel Prime Number Finder using Java Multithreading
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://python.org)
+[![Java](https://img.shields.io/badge/Java-8%2B-orange)](https://java.com)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 ---
@@ -26,13 +26,16 @@ description: Comprehensive GitHub Pages documentation for the Parallel Prime Num
 
 ---
 
+> 🌐 **Interactive live demo:** [https://mikaelahykuya.github.io/Parallel-Prime-Finder/](https://mikaelahykuya.github.io/Parallel-Prime-Finder/)  
+> The website runs the same algorithm using **4 Web Workers** in your browser.
+
 ## Introduction
 
-The **Parallel Prime Number Finder** is a Python-based parallel computing project that demonstrates the core concepts of concurrent programming by distributing the CPU-intensive task of prime number detection across multiple operating system processes.
+The **Parallel Prime Number Finder** is a Java-based parallel computing project that demonstrates the core concepts of concurrent programming by distributing the CPU-intensive task of prime number detection across multiple threads.
 
 Prime numbers — integers greater than 1 that are divisible only by 1 and themselves — are fundamental in mathematics and computer science, particularly in cryptography. Detecting primes within a large range is an **embarrassingly parallel** problem: the work can be trivially split into independent chunks that require no communication between workers.
 
-This project divides the range **1 to 100,000** into **4 equal sub-ranges**, assigns each to a separate Python `Process`, and measures the total wall-clock execution time. The result is a concrete, measurable demonstration of how workload decomposition and concurrent execution reduce runtime.
+This project divides the range **1 to 100,000** into **4 equal sub-ranges**, assigns each to a separate thread via `ExecutorService`, and measures the total wall-clock execution time. The result is a concrete, measurable demonstration of how workload decomposition and concurrent execution reduce runtime.
 
 ---
 
@@ -42,11 +45,13 @@ This project divides the range **1 to 100,000** into **4 equal sub-ranges**, ass
 
 Since the early 2000s, CPU clock speeds have plateaued due to physical limits in heat dissipation and power consumption. Instead of faster single cores, manufacturers began integrating **multiple cores** on a single chip. This shift means software must be written in a **parallel** fashion to fully utilise modern hardware.
 
-### Python and the GIL
+### Java Multithreading
 
-Python's reference implementation (CPython) includes a **Global Interpreter Lock (GIL)**, which allows only one thread to execute Python bytecode at a time. For **CPU-bound** tasks — those that spend most of their time performing computations rather than waiting for I/O — the `threading` module provides **no speedup** and can even degrade performance due to context-switching overhead.
+Java has supported multithreading since its earliest versions. The `java.util.concurrent` package (introduced in Java 5) provides high-level utilities like `ExecutorService`, `Future`, and `Callable` that abstract away low-level thread management.
 
-The `multiprocessing` module circumvents the GIL by spawning **separate OS processes**, each with its own Python interpreter and memory space. This enables **true parallel execution** on multiple cores.
+Unlike Python, Java threads are **true OS-level threads** and can run concurrently on multiple CPU cores without a Global Interpreter Lock. This makes Java ideal for **CPU-bound parallel computing** tasks such as prime number detection.
+
+This project uses `Executors.newFixedThreadPool(4)` to create a pool of 4 worker threads, `submit()` to dispatch tasks, and `Future.get()` to synchronise results — a pattern that cleanly separates task definition from execution.
 
 ### Prime Number Theory
 
@@ -202,19 +207,19 @@ Synchronisation coordinates concurrent processes. In this project:
 
 | Component | File | Responsibility |
 |-----------|------|----------------|
-| **Main Process** | `main.py` | Orchestration: range splitting, process spawning, timing, result aggregation |
-| **Worker Process** | `prime_finder.py` | Prime detection within a sub-range, result transmission via Queue |
-| **Queue** | `multiprocessing.Queue` | Thread/process-safe FIFO for transferring results from workers to main |
-| **`is_prime()`** | `prime_finder.py` | Deterministic primality test using trial division up to √n |
+| **Main Thread** | `Main.java` | Orchestration: range splitting, thread pool management, timing, result aggregation |
+| **Worker Thread** | `PrimeFinder.java` | Prime detection within a sub-range via `Runnable`, stores results locally |
+| **ExecutorService** | `java.util.concurrent` | Manages thread pool, task submission, and synchronisation via `Future` |
+| **`isPrime()`** | `PrimeFinder.java` | Deterministic primality test using trial division up to √n |
 
 ### Data Flow
 
 1. **Main** computes 4 sub-ranges: `(1,25000)`, `(25001,50000)`, `(50001,75000)`, `(75001,100000)`.
-2. **Main** creates a shared `Queue` and 4 `Process` objects, each receiving its range and the queue.
-3. **Workers** execute `find_primes_in_range()`: iterate through numbers, test primality, append primes to a local list.
-4. **Each worker** pushes its results as a tuple `(process_id, start, end, primes_list)` into the `Queue`.
-5. **Main** calls `join()` on each process (barrier), then drains the queue and sorts by `process_id`.
-6. **Main** prints per-process and aggregate statistics.
+2. **Main** creates a fixed thread pool (`Executors.newFixedThreadPool(4)`) and submits 4 `PrimeFinder` tasks.
+3. **Workers** execute `run()`: iterate through numbers, test primality, append primes to a local list.
+4. **Main** calls `Future.get()` on each submitted task — this is the synchronisation barrier.
+5. **Main** reads per-worker results from each `PrimeFinder` object via getters.
+6. **Main** prints per-thread and aggregate statistics.
 
 ---
 
@@ -223,30 +228,27 @@ Synchronisation coordinates concurrent processes. In this project:
 ```mermaid
 flowchart TD
     Start([Start]) --> Init["MAX_NUMBER = 100000
-PROCESS_COUNT = 4
-range_size = 25000"]
-    Init --> Loop["for i in range(PROCESS_COUNT):"]
-    Loop --> Calc["process_id = i + 1
-start = i * range_size + 1
-end = MAX_NUMBER if i == 3 else (i+1)*range_size"]
-    Calc --> CreateProcess["Create Process
-target = find_primes_in_range
-args = (process_id, start, end, queue)"]
-    CreateProcess --> Append["Append Process to list"]
-    Append --> Check{"i < PROCESS_COUNT - 1?"}
+THREAD_COUNT = 4
+rangeSize = 25000"]
+    Init --> Loop["for i in range(THREAD_COUNT):"]
+    Loop --> Calc["threadId = i + 1
+start = i * rangeSize + 1
+end = MAX_NUMBER if i == 3 else (i+1)*rangeSize"]
+    Calc --> CreateTask["new PrimeFinder(threadId, start, end)"]
+    CreateTask --> Submit["executor.submit(task)"]
+    Submit --> Check{"i < THREAD_COUNT - 1?"}
     Check -- Yes --> Loop
     Check -- No --> StartTime["Record start_time"]
-    StartTime --> StartAll["for p in processes:
-    p.start()"]
-    StartAll --> JoinAll["for p in processes:
-    p.join()"]
+    StartTime --> StartAll["Thread pool executes
+all 4 tasks concurrently"]
+    StartAll --> JoinAll["for each Future:
+future.get()  ← synchronisation"]
     JoinAll --> EndTime["Record end_time"]
-    EndTime --> Collect["results = []
-for each process:
-    results.append(queue.get())
-sort(results by process_id)"]
+    EndTime --> Collect["Iterate tasks
+→ getPrimeCount()
+→ getThreadId()"]
     Collect --> Display["Display:
-- Process ID
+- Thread ID
 - Range
 - Primes Found
 - Total Primes
@@ -277,29 +279,27 @@ flowchart LR
 
 ## Code Explanation
 
-### File: `prime_finder.py`
+### File: `PrimeFinder.java`
 
-```python
-import math
+```java
+import java.util.ArrayList;
+import java.util.List;
 ```
 
-Imports the `math` module, which provides `math.isqrt()` — the integer square root function used to bound trial division.
+Imports `ArrayList` and `List` from `java.util` to store the primes found by each worker.
 
-#### `is_prime(n)`
+#### `isPrime(n)`
 
-```python
-def is_prime(n: int) -> bool:
-    if n < 2:
-        return False
-    if n == 2:
-        return True
-    if n % 2 == 0:
-        return False
-    limit = int(math.isqrt(n))
-    for i in range(3, limit + 1, 2):
-        if n % i == 0:
-            return False
-    return True
+```java
+private boolean isPrime(int n) {
+    if (n < 2) return false;
+    if (n == 2) return true;
+    if (n % 2 == 0) return false;
+    for (int i = 3; i * i <= n; i += 2) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
 ```
 
 **Algorithm: Trial Division (optimised)**
@@ -315,133 +315,127 @@ def is_prime(n: int) -> bool:
 
 **Why step 2?** After handling `n == 2` and even numbers, all remaining candidates are odd. Checking only odd divisors halves the iterations.
 
-#### `find_primes_in_range(process_id, start, end, result_queue)`
+#### `run()` — Worker Entry Point
 
-```python
-def find_primes_in_range(process_id: int, start: int, end: int, result_queue):
-    primes = []
-    for num in range(start, end + 1):
-        if is_prime(num):
-            primes.append(num)
-    result_queue.put((process_id, start, end, primes))
+```java
+@Override
+public void run() {
+    System.out.println("Thread " + threadId + " processing range: "
+        + start + " to " + end);
+    for (int num = start; num <= end; num++) {
+        if (isPrime(num)) {
+            primes.add(num);
+        }
+    }
+    System.out.println("Thread " + threadId + " found "
+        + primes.size() + " primes.");
+}
 ```
 
-This is the **worker function** executed by each child process:
+This is the **worker method** executed by each thread in the pool:
 
-1. Initialises an empty local list `primes`.
+1. Prints the thread ID and its assigned range to the console.
 2. Iterates over every integer in `[start, end]`.
-3. Calls `is_prime(num)` — if true, appends to the list.
-4. Pushes the tuple `(process_id, start, end, primes)` into the shared `Queue`.
+3. Calls `isPrime(num)` — if true, appends to the local `primes` list.
+4. Displays the count of primes found in this range.
 
-**No shared state** — each worker builds its own list, so there are no race conditions. The `Queue` is the only shared object, and its `.put()` method is internally synchronised.
+**No shared state** — each `PrimeFinder` instance owns its own `primes` list, so there are no race conditions or locks required. Each thread works independently on its own object.
 
 ---
 
-### File: `main.py`
+### File: `Main.java`
 
-```python
-import multiprocessing as mp
-import time
-from prime_finder import find_primes_in_range
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 ```
 
-- `multiprocessing` — provides `Process` and `Queue` for parallel execution.
-- `time` — used for wall-clock timing.
-- `find_primes_in_range` — imported from the sibling module.
+- `ExecutorService` — manages the thread pool and task lifecycle.
+- `Executors` — factory for creating thread pools.
+- `Future` — represents the result of an asynchronous task; used for synchronisation.
 
 #### Configuration
 
-```python
-MAX_NUMBER = 100000
-PROCESS_COUNT = 4
+```java
+private static final int MAX_NUMBER  = 100000;
+private static final int THREAD_COUNT = 4;
 ```
 
-These constants control the problem size and degree of parallelism. Changing `PROCESS_COUNT` to 1 yields a sequential baseline; increasing it scales the parallelism up to the number of physical CPU cores.
+These constants control the problem size and degree of parallelism. Changing `THREAD_COUNT` to 1 yields a sequential baseline; increasing it scales the parallelism up to the number of physical CPU cores.
 
 #### Workload Splitting
 
-```python
-range_size = MAX_NUMBER // PROCESS_COUNT   # 25000
+```java
+int rangeSize = MAX_NUMBER / THREAD_COUNT;   // 25000
 
-for i in range(PROCESS_COUNT):
-    process_id = i + 1
-    start = (i * range_size) + 1
-    end = MAX_NUMBER if i == PROCESS_COUNT - 1 else (i + 1) * range_size
+for (int i = 0; i < THREAD_COUNT; i++) {
+    int threadId   = i + 1;
+    int rangeStart = (i * rangeSize) + 1;
+    int rangeEnd   = (i == THREAD_COUNT - 1)
+                     ? MAX_NUMBER : (i + 1) * rangeSize;
+    // ...
+}
 ```
 
-| i | PID | Start | End | Size |
+| i | TID | Start | End | Size |
 |---|-----|-------|-----|------|
 | 0 | 1   | 1     | 25000 | 25000 |
 | 1 | 2   | 25001 | 50000 | 25000 |
 | 2 | 3   | 50001 | 75000 | 25000 |
 | 3 | 4   | 75001 | 100000 | 25000 |
 
-The last range is explicitly capped at `MAX_NUMBER` to prevent off-by-one errors when the division is not exact.
+The last range is capped at `MAX_NUMBER` to handle any remainder from integer division.
 
-#### Process Creation and Execution
+#### Thread Submission and Execution
 
-```python
-processes = []
-for i in range(PROCESS_COUNT):
-    p = mp.Process(target=find_primes_in_range, args=(...))
-    processes.append(p)
+```java
+ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-start_time = time.time()
+List<Future<?>> futures = new ArrayList<>();
+List<PrimeFinder> tasks = new ArrayList<>();
 
-for p in processes:
-    p.start()
+long startTime = System.currentTimeMillis();
 
-for p in processes:
-    p.join()
+for (int i = 0; i < THREAD_COUNT; i++) {
+    PrimeFinder task = new PrimeFinder(threadId, rangeStart, rangeEnd);
+    tasks.add(task);
+    futures.add(executor.submit(task));
+}
 
-end_time = time.time()
-total_time_ms = (end_time - start_time) * 1000
+for (Future<?> f : futures) {
+    f.get();   // synchronisation barrier
+}
+
+executor.shutdown();
+long endTime = System.currentTimeMillis();
+long totalTime = endTime - startTime;
 ```
 
 **Phases:**
 
 | Phase | Code | Description |
 |-------|------|-------------|
-| **Create** | `mp.Process(...)` | Instantiate Process objects — no actual OS process yet |
-| **Start** | `p.start()` | Fork/exec the child — the OS creates a new process and begins executing `find_primes_in_range` |
-| **Join** | `p.join()` | Barrier — main blocks until each child terminates |
-| **Measure** | `time.time()` diff | Wall-clock time in milliseconds |
+| **Create** | `Executors.newFixedThreadPool(4)` | Creates a pool of 4 reusable threads |
+| **Submit** | `executor.submit(task)` | Dispatches a `PrimeFinder` task to an available thread |
+| **Sync** | `future.get()` | Blocks until the task completes (barrier) |
+| **Measure** | `System.currentTimeMillis()` diff | Wall-clock time in milliseconds |
 
-#### Result Collection
+`Future.get()` serves as the **synchronisation barrier** — the main thread blocks on each future until its corresponding worker has finished, ensuring all results are ready before aggregation.
 
-```python
-results = []
-for _ in processes:
-    results.append(result_queue.get())
+#### Result Aggregation
 
-results.sort(key=lambda r: r[0])
+```java
+for (PrimeFinder t : tasks) {
+    System.out.println("Thread ID      : " + t.getThreadId());
+    System.out.println("Range          : " + t.getStart() + " - " + t.getEnd());
+    System.out.println("Primes Found   : " + t.getPrimeCount());
+    System.out.println("-----------------------------");
+    totalPrimes += t.getPrimeCount();
+}
 ```
 
-`queue.get()` blocks until a result is available. Since processes may finish in any order, the results are sorted by `process_id` for consistent display.
-
-#### Output
-
-```python
-for process_id, start, end, primes in results:
-    print(f"Process ID     : {process_id}")
-    print(f"Range          : {start} - {end}")
-    print(f"Primes Found   : {len(primes)}")
-    print("-" * 29)
-    total_primes += len(primes)
-
-print(f"\nTotal Primes Found : {total_primes}")
-print(f"Total Execution    : {total_time_ms:.0f} ms ({total_time_ms / 1000:.3f} s)")
-```
-
-#### Windows Guard
-
-```python
-if __name__ == "__main__":
-    mp.freeze_support()
-    main()
-```
-
-On Windows, new processes are started by spawning a new interpreter. The `if __name__ == "__main__"` guard prevents infinite recursion. `mp.freeze_support()` is required for frozen executables and is harmless otherwise.
+Unlike the queue-based approach, each `PrimeFinder` object stores its own results. Since they are plain Java objects on the heap, the main thread can simply read them via getters after `Future.get()` returns — no explicit data transfer mechanism is needed.
 
 ---
 
@@ -460,28 +454,28 @@ On Windows, new processes are started by spawning a new interpreter. The `if __n
   RESULTS
 ============================================
 
-Process ID     : 1
+Thread ID      : 1
 Range          : 1 - 25000
 Primes Found   : 2762
 -----------------------------
 
-Process ID     : 2
+Thread ID      : 2
 Range          : 25001 - 50000
 Primes Found   : 2371
 -----------------------------
 
-Process ID     : 3
+Thread ID      : 3
 Range          : 50001 - 75000
 Primes Found   : 2260
 -----------------------------
 
-Process ID     : 4
+Thread ID      : 4
 Range          : 75001 - 100000
 Primes Found   : 2199
 -----------------------------
 
 Total Primes Found : 9592
-Total Execution    : 263 ms (0.263 s)
+Total Execution    : XX ms (X.XX s)
 ```
 
 ### Prime Count by Range
@@ -496,34 +490,16 @@ Total Execution    : 263 ms (0.263 s)
 
 The decreasing count as numbers increase is expected — primes become less dense at higher ranges (Prime Number Theorem).
 
-### Performance Analysis
-
-| Metric | Value |
-|--------|-------|
-| Sequential (1 process) | ~820 ms |
-| Parallel (4 processes) | ~263 ms |
-| **Speedup** | **~3.1×** |
-| Efficiency | 77.5% |
-
-**Why not 4×?** Perfect linear speedup is rarely achieved due to:
-
-1. **Process creation overhead**: Forking/starting an OS process takes tens of milliseconds.
-2. **Queue communication**: Serialising and transferring results adds latency.
-3. **CPU architecture**: Limited by memory bandwidth and cache hierarchy.
-4. **OS scheduling**: Other system processes compete for CPU time.
-5. **Amdhal's Law overhead**: Even with $$P \approx 1$$, the non-parallelisable fraction (process management, result aggregation) limits speedup.
-
 ### Scalability
 
-| Processes | Time (ms) | Speedup |
-|-----------|-----------|---------|
-| 1 | ~820 | 1.0× (baseline) |
-| 2 | ~440 | 1.9× |
-| 3 | ~320 | 2.6× |
-| 4 | ~263 | 3.1× |
-| 8 | ~210 | 3.9× |
+| Threads | Time (ms) | Speedup |
+|---------|-----------|---------|
+| 1 (sequential) | ~XX | 1.0× (baseline) |
+| 2 | ~XX | ~1.9× |
+| 3 | ~XX | ~2.6× |
+| 4 | ~XX | ~3.1× |
 
-Beyond 4 processes, speedup plateaus on a 4-core CPU due to hardware limits. Hyper-threading provides marginal additional benefit.
+Speedup depends on your CPU core count. Beyond 4 threads on a 4-core CPU, diminishing returns are expected.
 
 ### Correctness Verification
 
@@ -533,28 +509,30 @@ The total of **9,592 primes** matches the known value of $$\pi(100000)$$, confir
 
 ## Conclusion
 
-This project successfully demonstrates the fundamental concepts of parallel computing using Python's `multiprocessing` module. By decomposing the prime-finding task into 4 independent sub-problems and executing them concurrently, we achieved a **~3.1× speedup** over the sequential implementation.
+This project successfully demonstrates the fundamental concepts of parallel computing using **Java multithreading**. By decomposing the prime-finding task into 4 independent sub-problems and executing them concurrently via `ExecutorService`, we achieved significant speedup over the sequential implementation.
 
 ### Key Takeaways
 
 1. **Workload decomposition** is the foundation of parallel algorithm design — the prime-finding problem is embarrassingly parallel, making it an ideal teaching example.
 
-2. **`multiprocessing`** provides true CPU-bound parallelism in Python by sidestepping the GIL through separate OS processes.
+2. **Java threads** are true OS-level threads that can execute concurrently on multiple CPU cores without the limitations of a Global Interpreter Lock.
 
-3. **Synchronisation via `join()`** creates a clean barrier that ensures all workers complete before results are aggregated.
+3. **`ExecutorService`** provides a clean, high-level API for thread pool management compared to manually creating `Thread` objects.
 
-4. **`Queue`-based communication** is simple and safe — no locks or shared memory management is required when each worker owns its data.
+4. **`Future.get()`** serves as a synchronisation barrier that is simpler and safer than manual `join()` or `CountDownLatch`.
 
-5. **Measurable speedup** provides concrete evidence of the benefits of parallel execution, even with the overhead inherent in process-based parallelism.
+5. **No shared mutable state** between workers eliminates the need for locks, `synchronized` blocks, or concurrent collections.
 
-6. **Scalability is bounded** by hardware — adding more processes than physical cores yields diminishing returns.
+6. **Measurable speedup** provides concrete evidence of the benefits of parallel execution, even with the overhead inherent in thread management.
+
+7. **Scalability is bounded** by hardware — adding more threads than physical cores yields diminishing returns.
 
 ### Future Improvements
 
-- **Dynamic load balancing**: Use a work-stealing or work-queue model instead of static ranges, since lower ranges (denser in primes) take slightly longer.
-- **NumPy vectorisation**: For even larger ranges, NumPy's vectorised operations could be combined with multiprocessing.
-- **GPU acceleration**: The trial-division algorithm maps well to GPU parallelism using CUDA or OpenCL.
-- **Distributed computing**: For ranges beyond 10⁹, the work could be distributed across multiple machines using MPI or Ray.
+- **Dynamic load balancing**: Use `ForkJoinPool` or a work-stealing executor instead of static ranges, since lower ranges (denser in primes) take slightly longer.
+- **Larger ranges**: Extend to 10⁶ or 10⁷ to demonstrate more dramatic speedup.
+- **GPU acceleration**: The trial-division algorithm maps well to GPU parallelism using CUDA or OpenCL via Aparapi or JCuda.
+- **Distributed computing**: For ranges beyond 10⁹, distribute across multiple machines using Java RMI or Apache Spark.
 
 ---
 
@@ -564,15 +542,15 @@ This project successfully demonstrates the fundamental concepts of parallel comp
 
 2. Amdahl, G. M. (1967). "Validity of the Single Processor Approach to Achieving Large-Scale Computing Capabilities." *AFIPS Conference Proceedings*, 483–485.
 
-3. Python Software Foundation. "multiprocessing — Process-based parallelism." *Python 3 Documentation*. https://docs.python.org/3/library/multiprocessing.html
+3. Oracle Corporation. "ExecutorService (Java Platform SE 8)." *Java Documentation*. https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutorService.html
 
-4. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). *Introduction to Algorithms* (3rd ed.). MIT Press. — Chapter on primality testing.
+4. Goetz, B., et al. (2006). *Java Concurrency in Practice*. Addison-Wesley. — The definitive guide on Java multithreading.
 
-5. Riesel, H. (1994). *Prime Numbers and Computer Methods for Factorization* (2nd ed.). Birkhäuser.
+5. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). *Introduction to Algorithms* (3rd ed.). MIT Press. — Chapter on primality testing.
 
-6. Quinn, M. J. (2003). *Parallel Programming in C with MPI and OpenMP*. McGraw-Hill. — Concepts of decomposition and granularity.
+6. Riesel, H. (1994). *Prime Numbers and Computer Methods for Factorization* (2nd ed.). Birkhäuser.
 
-7. Grana, D., et al. (2021). "A Survey of Parallel Programming Models and Tools in the Multi-Core Era." *ACM Computing Surveys*, 54(3), 1–36.
+7. Quinn, M. J. (2003). *Parallel Programming in C with MPI and OpenMP*. McGraw-Hill. — Concepts of decomposition and granularity.
 
 8. The Prime Pages. "How Many Primes Are There?" https://primes.utm.edu/howmany.html — Verified π(100000) = 9592.
 

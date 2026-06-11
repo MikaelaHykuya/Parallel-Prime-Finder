@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Prime Number Finder</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #38bdf8;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .badge {
+            display: inline-block;
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid #334155;
+            margin: 0 4px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #475569; cursor: not-allowed; }
+        button.reset { background: #dc2626; }
+        button.reset:hover { background: #b91c1c; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            transition: border-color 0.3s;
+        }
+        .card.running { border-color: #38bdf8; }
+        .card.done { border-color: #22c55e; }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .card-title .num { color: #38bdf8; }
+        .status {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .status.waiting { background: #334155; color: #94a3b8; }
+        .status.running { background: #1e3a5f; color: #38bdf8; }
+        .status.done    { background: #14532d; color: #4ade80; }
+        .range-info { color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px; }
+        .bar-track {
+            background: #0f172a;
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            border-radius: 6px;
+            transition: width 0.15s;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+        .stats .label { color: #64748b; }
+        .stats .value { color: #e2e8f0; font-weight: 600; }
+        .summary {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+        .summary h2 {
+            color: #38bdf8;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 0.95rem;
+        }
+        .summary-row:last-child { border: none; }
+        .summary-row .val { color: #38bdf8; font-weight: 700; }
+        .summary-row .val.green { color: #4ade80; }
+        .footer {
+            text-align: center;
+            color: #475569;
+            font-size: 0.8rem;
+            margin-top: 30px;
+        }
+        .footer a { color: #38bdf8; text-decoration: none; }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>⚡ Parallel Prime Number Finder</h1>
+    <p class="subtitle">
+        <span class="badge">4 Web Workers</span>
+        <span class="badge">Range 1 – 100000</span>
+        <span class="badge">Live in Browser</span>
+    </p>
+
+    <div class="controls">
+        <button id="btnStart" onclick="startAll()">▶ Start</button>
+        <button class="reset" onclick="resetAll()">↻ Reset</button>
+    </div>
+
+    <div class="grid" id="cardGrid"></div>
+
+    <div class="summary">
+        <h2>📊 Summary</h2>
+        <div class="summary-row"><span>Total Primes Found</span><span class="val green" id="totalPrimes">0</span></div>
+        <div class="summary-row"><span>Execution Time</span><span class="val" id="execTime">—</span></div>
+        <div class="summary-row"><span>Status</span><span class="val" id="statusText">Waiting</span></div>
+    </div>
+
+    <div class="footer">
+        <a href="https://github.com/MikaelaHykuya/Parallel-Prime-Finder" target="_blank">GitHub</a>
+        &nbsp;·&nbsp; Parallel Computing Project
+    </div>
+</div>
+
+<script>
+// ── Web Worker inline (Blob) ──────────────────────────────────────────
+const workerBlob = new Blob([`
+    self.onmessage = function(e) {
+        const { id, start, end } = e.data;
+        const primes = [];
+        let checked = 0;
+        const total = end - start + 1;
+
+        function isPrime(n) {
+            if (n < 2) return false;
+            if (n === 2) return true;
+            if (n % 2 === 0) return false;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return false;
+            }
+            return true;
+        }
+
+        for (let num = start; num <= end; num++) {
+            if (isPrime(num)) primes.push(num);
+            checked++;
+            // report progress every ~1%
+            if (checked % Math.max(1, Math.floor(total / 100)) === 0 || num === end) {
+                self.postMessage({ id, progress: checked / total * 100, primes });
+            }
+        }
+        self.postMessage({ id, progress: 100, primes, done: true });
+    };
+`], { type: 'application/javascript' });
+const workerUrl = URL.createObjectURL(workerBlob);
+
+// ── State ─────────────────────────────────────────────────────────────
+const config = [
+    { id: 1, start: 1,      end: 25000  },
+    { id: 2, start: 25001,  end: 50000  },
+    { id: 3, start: 50001,  end: 75000  },
+    { id: 4, start: 75001,  end: 100000 },
+];
+
+let workers   = [];
+let started   = false;
+let doneCount = 0;
+let startTime = 0;
+
+// ── DOM refs ──────────────────────────────────────────────────────────
+const grid      = document.getElementById('cardGrid');
+const btnStart  = document.getElementById('btnStart');
+const elTotal   = document.getElementById('totalPrimes');
+const elTime    = document.getElementById('execTime');
+const elStatus  = document.getElementById('statusText');
+
+// ── Render cards ──────────────────────────────────────────────────────
+function buildCards() {
+    grid.innerHTML = '';
+    config.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.id = 'card-' + c.id;
+        card.innerHTML = `
+            <div class="card-header">
+                <div class="card-title">🧵 Worker <span class="num">#${c.id}</span></div>
+                <span class="status waiting" id="status-${c.id}">Waiting</span>
+            </div>
+            <div class="range-info">Range: ${c.start.toLocaleString()} – ${c.end.toLocaleString()}</div>
+            <div class="bar-track"><div class="bar-fill" id="bar-${c.id}"></div></div>
+            <div class="stats">
+                <span><span class="label">Progress</span> <span class="value" id="pct-${c.id}">0%</span></span>
+                <span><span class="label">Primes</span> <span class="value" id="cnt-${c.id}">0</span></span>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// ── Start ──────────────────────────────────────────────────────────────
+function startAll() {
+    if (started) return;
+    started = true;
+    doneCount = 0;
+    startTime = performance.now();
+    btnStart.disabled = true;
+    elStatus.textContent = 'Running…';
+    elTime.textContent = '—';
+
+    config.forEach(c => {
+        const w = new Worker(workerUrl);
+        workers.push(w);
+
+        w.onmessage = function(e) {
+            const d = e.data;
+            if (d.id !== c.id) return;
+
+            document.getElementById('bar-' + c.id).style.width  = d.progress + '%';
+            document.getElementById('pct-' + c.id).textContent  = Math.round(d.progress) + '%';
+            document.getElementById('cnt-' + c.id).textContent  = d.primes.length;
+
+            if (d.done) {
+                doneCount++;
+                document.getElementById('card-' + c.id).className = 'card done';
+                document.getElementById('status-' + c.id).className = 'status done';
+                document.getElementById('status-' + c.id).textContent = '✅ Done';
+
+                if (doneCount === config.length) {
+                    const elapsed = performance.now() - startTime;
+                    elTime.textContent  = elapsed.toFixed(1) + ' ms (' + (elapsed / 1000).toFixed(3) + ' s)';
+                    elStatus.textContent = '✅ Complete';
+                    btnStart.disabled = false;
+                }
+            } else {
+                document.getElementById('card-' + c.id).className = 'card running';
+                document.getElementById('status-' + c.id).className = 'status running';
+                document.getElementById('status-' + c.id).textContent = 'Running…';
+            }
+
+            // update total
+            let total = 0;
+            config.forEach(c2 => {
+                const el = document.getElementById('cnt-' + c2.id);
+                total += parseInt(el.textContent) || 0;
+            });
+            elTotal.textContent = total;
+        };
+
+        w.postMessage(c);
+    });
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────
+function resetAll() {
+    workers.forEach(w => w.terminate());
+    workers = [];
+    started = false;
+    doneCount = 0;
+    btnStart.disabled = false;
+    elTotal.textContent = '0';
+    elTime.textContent  = '—';
+    elStatus.textContent = 'Waiting';
+    config.forEach(c => {
+        document.getElementById('card-' + c.id).className = 'card';
+        document.getElementById('bar-' + c.id).style.width  = '0%';
+        document.getElementById('pct-' + c.id).textContent  = '0%';
+        document.getElementById('cnt-' + c.id).textContent  = '0';
+        document.getElementById('status-' + c.id).className = 'status waiting';
+        document.getElementById('status-' + c.id).textContent = 'Waiting';
+    });
+}
+
+buildCards();
+</script>
+</body>
+</html>
