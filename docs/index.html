@@ -1,330 +1,471 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parallel Prime Number Finder</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container { max-width: 900px; margin: 0 auto; }
-        h1 {
-            text-align: center;
-            font-size: 1.8rem;
-            color: #38bdf8;
-            margin-bottom: 4px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-        .badge {
-            display: inline-block;
-            background: #1e293b;
-            color: #38bdf8;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            border: 1px solid #334155;
-            margin: 0 4px;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        button {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            padding: 10px 28px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover { background: #1d4ed8; }
-        button:disabled { background: #475569; cursor: not-allowed; }
-        button.reset { background: #dc2626; }
-        button.reset:hover { background: #b91c1c; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 16px;
-            transition: border-color 0.3s;
-        }
-        .card.running { border-color: #38bdf8; }
-        .card.done { border-color: #22c55e; }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .card-title {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-        .card-title .num { color: #38bdf8; }
-        .status {
-            font-size: 0.75rem;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-        .status.waiting { background: #334155; color: #94a3b8; }
-        .status.running { background: #1e3a5f; color: #38bdf8; }
-        .status.done    { background: #14532d; color: #4ade80; }
-        .range-info { color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px; }
-        .bar-track {
-            background: #0f172a;
-            border-radius: 6px;
-            height: 10px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-        .bar-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #38bdf8, #818cf8);
-            border-radius: 6px;
-            transition: width 0.15s;
-        }
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-        }
-        .stats .label { color: #64748b; }
-        .stats .value { color: #e2e8f0; font-weight: 600; }
-        .summary {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 20px;
-        }
-        .summary h2 {
-            color: #38bdf8;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid #1e293b;
-            font-size: 0.95rem;
-        }
-        .summary-row:last-child { border: none; }
-        .summary-row .val { color: #38bdf8; font-weight: 700; }
-        .summary-row .val.green { color: #4ade80; }
-        .footer {
-            text-align: center;
-            color: #475569;
-            font-size: 0.8rem;
-            margin-top: 30px;
-        }
-        .footer a { color: #38bdf8; text-decoration: none; }
-        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallel Prime Number Finder</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  background:#0a0e17;
+  color:#e8edf5;
+  min-height:100vh;
+  padding:24px;
+}
+.container{max-width:1100px;margin:0 auto}
+
+/* ── Header ── */
+.header{
+  background:linear-gradient(135deg,#0f172a 0%,#1a2332 100%);
+  border:1px solid #1e293b;
+  border-radius:16px;
+  padding:28px 32px;
+  margin-bottom:24px;
+  position:relative;
+  overflow:hidden;
+}
+.header::before{
+  content:'';
+  position:absolute;
+  top:0;right:0;
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(56,189,248,0.08),transparent);
+}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
+.header h1{
+  font-size:1.6rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#38bdf8,#818cf8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.header .sub{color:#64748b;font-size:0.85rem;margin-top:4px}
+.header .sub span{color:#94a3b8}
+.header-badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(56,189,248,0.1);
+  border:1px solid rgba(56,189,248,0.2);
+  padding:5px 14px;border-radius:20px;
+  font-size:0.78rem;color:#7dd3fc;font-weight:500;
+}
+.badge i{font-style:normal;font-size:1rem}
+
+/* ── Controls ── */
+.controls{
+  display:flex;gap:10px;margin-top:18px;
+  flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 24px;border-radius:10px;
+  font-size:0.9rem;font-weight:600;
+  border:none;cursor:pointer;
+  transition:all .2s;
+}
+.btn-start{
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:#fff;box-shadow:0 4px 15px rgba(37,99,235,0.3);
+}
+.btn-start:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,0.4)}
+.btn-start:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-reset{
+  background:#1e293b;color:#94a3b8;
+  border:1px solid #334155;
+}
+.btn-reset:hover{background:#334155;color:#e2e8f0}
+.btn-reset.running{opacity:.4;cursor:not-allowed}
+
+/* ── Grid ── */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}}
+
+.card{
+  background:linear-gradient(145deg,#111b2e,#0f172a);
+  border:1px solid #1e293b;
+  border-radius:14px;
+  padding:20px;
+  transition:all .4s;
+  position:relative;overflow:hidden;
+}
+.card::after{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:3px;background:#334155;transition:background .4s;
+}
+.card.running::after{background:linear-gradient(90deg,#38bdf8,#818cf8,#38bdf8);background-size:200% 100%;animation:shimmer 2s infinite}
+.card.done::after{background:#22c55e}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-title{display:flex;align-items:center;gap:10px;font-weight:600;font-size:0.95rem}
+.card-title .icon{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+}
+.card-title .icon.idle{background:rgba(71,85,105,0.3);color:#64748b}
+.card-title .icon.busy{background:rgba(56,189,248,0.2);color:#38bdf8}
+.card-title .icon.done{background:rgba(34,197,94,0.2);color:#22c55e}
+.status{
+  font-size:0.72rem;padding:4px 12px;border-radius:10px;
+  font-weight:600;letter-spacing:.3px;
+}
+.status.waiting{background:#1e293b;color:#64748b}
+.status.running{background:rgba(56,189,248,0.15);color:#38bdf8}
+.status.done{background:rgba(34,197,94,0.15);color:#4ade80}
+
+.range-info{
+  display:flex;gap:16px;margin-bottom:14px;
+  font-size:0.82rem;color:#94a3b8;
+}
+.range-info .kv{display:flex;gap:4px}
+.range-info .kv .l{color:#475569}
+.range-info .kv .v{color:#cbd5e1;font-weight:500}
+
+.bar-section{margin-bottom:12px}
+.bar-label{display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:4px}
+.bar-label .l{color:#475569}
+.bar-label .v{color:#38bdf8;font-weight:600}
+.bar-track{
+  background:#0a0e17;border-radius:8px;
+  height:14px;overflow:hidden;position:relative;
+}
+.bar-fill{
+  height:100%;width:0%;
+  border-radius:8px;
+  transition:width .15s ease;
+  position:relative;
+}
+.bar-fill.worker1{background:linear-gradient(90deg,#38bdf8,#2dd4bf)}
+.bar-fill.worker2{background:linear-gradient(90deg,#818cf8,#a78bfa)}
+.bar-fill.worker3{background:linear-gradient(90deg,#f472b6,#fb7185)}
+.bar-fill.worker4{background:linear-gradient(90deg,#fbbf24,#fb923c)}
+
+.card-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.stat-box{
+  background:rgba(10,14,23,0.6);
+  border-radius:8px;padding:8px 10px;
+  text-align:center;
+}
+.stat-box .num{font-size:1.1rem;font-weight:700;color:#e2e8f0}
+.stat-box .lbl{font-size:0.68rem;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.stat-box .num.prime{color:#4ade80}
+.stat-box .num.checked{color:#38bdf8}
+
+/* ── Bottom Panel ── */
+.bottom-panels{display:grid;grid-template-columns:1.2fr 0.8fr;gap:14px;margin-bottom:24px}
+@media(max-width:768px){.bottom-panels{grid-template-columns:1fr}}
+
+.panel{
+  background:linear-gradient(145deg,#111b2e,#0f172a);
+  border:1px solid #1e293b;border-radius:14px;padding:20px;
+}
+.panel h3{
+  font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;
+  color:#475569;margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.panel h3 .hl{color:#38bdf8}
+
+/* ── Terminal ── */
+.terminal{
+  background:#05080f;border-radius:8px;
+  padding:14px;height:180px;overflow-y:auto;
+  font-family:'JetBrains Mono','Fira Code','Cascadia Code',monospace;
+  font-size:0.78rem;line-height:1.7;
+}
+.terminal::-webkit-scrollbar{width:4px}
+.terminal::-webkit-scrollbar-track{background:transparent}
+.terminal::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+.terminal .line{opacity:0;animation:fadeIn .3s forwards;color:#94a3b8}
+.terminal .line.info{color:#7dd3fc}
+.terminal .line.ok{color:#4ade80}
+.terminal .line.warn{color:#fbbf24}
+.terminal .line.result{color:#a78bfa;font-weight:600}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Summary ── */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.summary-item{
+  background:rgba(10,14,23,0.6);border-radius:10px;padding:14px;
+  text-align:center;
+}
+.summary-item .num{
+  font-size:1.8rem;font-weight:800;
+  background:linear-gradient(135deg,#38bdf8,#818cf8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.summary-item .num.green{background:linear-gradient(135deg,#4ade80,#22c55e);-webkit-background-clip:text;background-clip:text}
+.summary-item .num.orange{background:linear-gradient(135deg,#fbbf24,#fb923c);-webkit-background-clip:text;background-clip:text}
+.summary-item .lbl{font-size:0.72rem;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+/* ── Status Bar ── */
+.status-bar{
+  margin-top:12px;padding-top:12px;
+  border-top:1px solid #1e293b;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.82rem;flex-wrap:wrap;gap:8px;
+}
+.status-bar .indicator{display:flex;align-items:center;gap:8px}
+.dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#475569;transition:background .3s;
+}
+.dot.running{background:#38bdf8;box-shadow:0 0 8px rgba(56,189,248,0.5);animation:pulse 1.5s infinite}
+.dot.done{background:#4ade80}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.footer{
+  text-align:center;color:#1e293b;font-size:0.78rem;padding:8px 0;
+}
+.footer a{color:#475569;text-decoration:none}
+.footer a:hover{color:#38bdf8}
+</style>
 </head>
 <body>
 <div class="container">
-    <h1>⚡ Parallel Prime Number Finder</h1>
-    <p class="subtitle">
-        <span class="badge">4 Web Workers</span>
-        <span class="badge">Range 1 – 100000</span>
-        <span class="badge">Live in Browser</span>
-    </p>
 
-    <div class="controls">
-        <button id="btnStart" onclick="startAll()">▶ Start</button>
-        <button class="reset" onclick="resetAll()">↻ Reset</button>
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Parallel Prime Number Finder</h1>
+      <div class="sub">Java Multithreading · <span>1 to 100000</span> · <span>4 Threads</span></div>
     </div>
-
-    <div class="grid" id="cardGrid"></div>
-
-    <div class="summary">
-        <h2>📊 Summary</h2>
-        <div class="summary-row"><span>Total Primes Found</span><span class="val green" id="totalPrimes">0</span></div>
-        <div class="summary-row"><span>Execution Time</span><span class="val" id="execTime">—</span></div>
-        <div class="summary-row"><span>Status</span><span class="val" id="statusText">Waiting</span></div>
+    <div class="header-badges">
+      <span class="badge"><i>🧵</i> Thread Pool</span>
+      <span class="badge"><i>⚡</i> ExecutorService</span>
+      <span class="badge"><i>📊</i> Live Demo</span>
     </div>
+  </div>
+  <div class="controls">
+    <button class="btn btn-start" id="btnStart" onclick="startAll()">▶ Start Parallel Execution</button>
+    <button class="btn btn-reset" id="btnReset" onclick="resetAll()">↻ Reset</button>
+  </div>
+</div>
 
-    <div class="footer">
-        <a href="https://github.com/MikaelaHykuya/Parallel-Prime-Finder" target="_blank">GitHub</a>
-        &nbsp;·&nbsp; Parallel Computing Project
+<!-- ── WORKER CARDS ── -->
+<div class="grid" id="cardGrid"></div>
+
+<!-- ── BOTTOM PANELS ── -->
+<div class="bottom-panels">
+  <div class="panel">
+    <h3><span class="hl">⏎</span> Terminal Output</h3>
+    <div class="terminal" id="terminal"></div>
+  </div>
+  <div class="panel">
+    <h3><span class="hl">📊</span> Execution Summary</h3>
+    <div class="summary-grid">
+      <div class="summary-item"><div class="num green" id="totalPrimes">0</div><div class="lbl">Primes Found</div></div>
+      <div class="summary-item"><div class="num orange" id="totalChecked">0</div><div class="lbl">Numbers Checked</div></div>
+      <div class="summary-item"><div class="num" id="execTime">—</div><div class="lbl">Execution Time</div></div>
+      <div class="summary-item"><div class="num" id="throughput">—</div><div class="lbl">Throughput (num/ms)</div></div>
     </div>
+    <div class="status-bar">
+      <div class="indicator"><span class="dot" id="statusDot"></span><span id="statusText">Waiting to start</span></div>
+      <span style="color:#475569;font-size:0.75rem" id="elapsedTime"></span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <a href="https://github.com/MikaelaHykuya/Parallel-Prime-Finder" target="_blank">GitHub</a>
+   · Parallel Computing Project
+</div>
 </div>
 
 <script>
-// ── Web Worker inline (Blob) ──────────────────────────────────────────
-const workerBlob = new Blob([`
-    self.onmessage = function(e) {
-        const { id, start, end } = e.data;
-        const primes = [];
-        let checked = 0;
-        const total = end - start + 1;
+// ── Web Worker ───────────────────────────────────────────────────────
+const blob = new Blob([`
+  self.onmessage=function(e){
+    const{id,start,end}=e.data;
+    const primes=[];let checked=0;const total=end-start+1;
+    function p(n){
+      if(n<2)return 0;
+      if(n===2)return 1;
+      if(n%2===0)return 0;
+      for(let i=3;i*i<=n;i+=2)if(n%i===0)return 0;
+      return 1;
+    }
+    for(let n=start;n<=end;n++){
+      if(p(n))primes.push(n);checked++;
+      if(checked%Math.max(1,Math.floor(total/120))===0||n===end)
+        self.postMessage({id,progress:checked/total*100,primes,checked});
+    }
+    self.postMessage({id,progress:100,primes,checked,done:1});
+  };
+`],{type:'application/javascript'});
+const url=URL.createObjectURL(blob);
 
-        function isPrime(n) {
-            if (n < 2) return false;
-            if (n === 2) return true;
-            if (n % 2 === 0) return false;
-            for (let i = 3; i * i <= n; i += 2) {
-                if (n % i === 0) return false;
-            }
-            return true;
-        }
+// ── Config ──
+const THREADS=[
+  {id:1,start:1,end:25000,color:'#38bdf8',barClass:'worker1',r:'2762'},
+  {id:2,start:25001,end:50000,color:'#818cf8',barClass:'worker2',r:'2371'},
+  {id:3,start:50001,end:75000,color:'#f472b6',barClass:'worker3',r:'2260'},
+  {id:4,start:75001,end:100000,color:'#fbbf24',barClass:'worker4',r:'2199'},
+  ];
+const TOTAL_NUM=100000;
+let workers=[],started=0,doneCount=0,startTime=0;
 
-        for (let num = start; num <= end; num++) {
-            if (isPrime(num)) primes.push(num);
-            checked++;
-            // report progress every ~1%
-            if (checked % Math.max(1, Math.floor(total / 100)) === 0 || num === end) {
-                self.postMessage({ id, progress: checked / total * 100, primes });
-            }
+// ── DOM ──
+const grid=document.getElementById('cardGrid');
+const term=document.getElementById('terminal');
+const btnStart=document.getElementById('btnStart');
+const btnReset=document.getElementById('btnReset');
+const elTotalPrimes=document.getElementById('totalPrimes');
+const elTotalChecked=document.getElementById('totalChecked');
+const elExecTime=document.getElementById('execTime');
+const elThroughput=document.getElementById('throughput');
+const elStatus=document.getElementById('statusText');
+const elDot=document.getElementById('statusDot');
+const elElapsed=document.getElementById('elapsedTime');
+
+// ── Build Cards ──
+function build(){
+  grid.innerHTML='';
+  THREADS.forEach(t=>{
+    const c=document.createElement('div');c.className='card';c.id='card-'+t.id;
+    c.innerHTML=`
+      <div class="card-head">
+        <div class="card-title">
+          <div class="icon idle" id="icon-${t.id}">🧵</div>
+          <span>Worker Thread #${t.id}</span>
+        </div>
+        <span class="status waiting" id="status-${t.id}">Waiting</span>
+      </div>
+      <div class="range-info">
+        <span class="kv"><span class="l">Range</span><span class="v">${t.start.toLocaleString()} – ${t.end.toLocaleString()}</span></span>
+        <span class="kv"><span class="l">Size</span><span class="v">${(t.end-t.start+1).toLocaleString()}</span></span>
+      </div>
+      <div class="bar-section">
+        <div class="bar-label"><span class="l">Progress</span><span class="v" id="pct-${t.id}">0%</span></div>
+        <div class="bar-track"><div class="bar-fill ${t.barClass}" id="bar-${t.id}"></div></div>
+      </div>
+      <div class="card-stats">
+        <div class="stat-box"><div class="num checked" id="cnt-${t.id}">0</div><div class="lbl">Numbers Checked</div></div>
+        <div class="stat-box"><div class="num prime" id="found-${t.id}">0</div><div class="lbl">Primes Found</div></div>
+      </div>
+    `;
+    grid.appendChild(c);
+  });
+}
+
+// ── Terminal ──
+function log(msg,cls='info'){
+  const d=document.createElement('div');d.className='line '+cls;
+  d.textContent='> '+msg;term.appendChild(d);term.scrollTop=term.scrollHeight;
+}
+function clearTerm(){term.innerHTML=''}
+
+// ── Start ──
+function startAll(){
+  if(started)return;
+  started=1;doneCount=0;startTime=performance.now();
+  clearTerm();
+  log('Initialising thread pool...','info');
+  log('MAX_NUMBER = 100000','info');
+  log('THREAD_COUNT = 4','info');
+  log('rangeSize = 25000','info');
+  log('Spawning 4 PrimeFinder tasks...','info');
+  log('────────────────────────────────','info');
+  btnStart.disabled=true;
+  btnReset.classList.add('running');
+  elStatus.textContent='Running…';
+  elDot.className='dot running';
+  elExecTime.textContent='—';
+  elThroughput.textContent='—';
+
+  THREADS.forEach(t=>{
+    const w=new Worker(url);
+    workers.push(w);
+    w.onmessage=function(e){
+      const d=e.data;
+      if(d.id!==t.id)return;
+      const pct=d.progress;
+      document.getElementById('bar-'+t.id).style.width=pct+'%';
+      document.getElementById('pct-'+t.id).textContent=Math.round(pct)+'%';
+      document.getElementById('cnt-'+t.id).textContent=d.checked.toLocaleString();
+      document.getElementById('found-'+t.id).textContent=d.primes.length.toLocaleString();
+
+      if(pct<100){
+        document.getElementById('card-'+t.id).className='card running';
+        document.getElementById('icon-'+t.id).className='icon busy';
+        document.getElementById('status-'+t.id).className='status running';
+        document.getElementById('status-'+t.id).textContent='Scanning…';
+      }
+      if(d.done){
+        doneCount++;
+        document.getElementById('card-'+t.id).className='card done';
+        document.getElementById('icon-'+t.id).className='icon done';
+        document.getElementById('status-'+t.id).className='status done';
+        document.getElementById('status-'+t.id).textContent='✅ Completed';
+        log(`Thread ${t.id} finished — ${d.primes.length} primes found in range ${t.start.toLocaleString()}–${t.end.toLocaleString()}`,d.primes.length?'ok':'warn');
+
+        if(doneCount===THREADS.length){
+          const elapsed=performance.now()-startTime;
+          const totalP=THREADS.reduce((s,th)=>s+parseInt(document.getElementById('found-'+th.id).textContent.replace(/,/g,'')||'0'),0);
+          elExecTime.textContent=elapsed.toFixed(1)+' ms ('+(elapsed/1000).toFixed(3)+' s)';
+          elThroughput.textContent=(TOTAL_NUM/elapsed).toFixed(1);
+          elStatus.textContent='✅ All threads completed successfully';
+          elDot.className='dot done';
+          btnReset.classList.remove('running');
+          btnStart.disabled=false;
+          log('────────────────────────────────','info');
+          log(`TOTAL: ${totalP} primes found in ${elapsed.toFixed(1)} ms (${(elapsed/1000).toFixed(3)} s)`,`result`);
+          log('Parallel execution complete.','ok');
         }
-        self.postMessage({ id, progress: 100, primes, done: true });
+      }
+      // total aggregation
+      let tc=0,tp=0;
+      THREADS.forEach(th=>{
+        tc+=parseInt(document.getElementById('cnt-'+th.id).textContent.replace(/,/g,'')||'0');
+        tp+=parseInt(document.getElementById('found-'+th.id).textContent.replace(/,/g,'')||'0');
+      });
+      elTotalPrimes.textContent=tp.toLocaleString();
+      elTotalChecked.textContent=tc.toLocaleString();
+      elElapsed.textContent='⏱ '+(performance.now()-startTime).toFixed(0)+' ms';
     };
-`], { type: 'application/javascript' });
-const workerUrl = URL.createObjectURL(workerBlob);
-
-// ── State ─────────────────────────────────────────────────────────────
-const config = [
-    { id: 1, start: 1,      end: 25000  },
-    { id: 2, start: 25001,  end: 50000  },
-    { id: 3, start: 50001,  end: 75000  },
-    { id: 4, start: 75001,  end: 100000 },
-];
-
-let workers   = [];
-let started   = false;
-let doneCount = 0;
-let startTime = 0;
-
-// ── DOM refs ──────────────────────────────────────────────────────────
-const grid      = document.getElementById('cardGrid');
-const btnStart  = document.getElementById('btnStart');
-const elTotal   = document.getElementById('totalPrimes');
-const elTime    = document.getElementById('execTime');
-const elStatus  = document.getElementById('statusText');
-
-// ── Render cards ──────────────────────────────────────────────────────
-function buildCards() {
-    grid.innerHTML = '';
-    config.forEach(c => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.id = 'card-' + c.id;
-        card.innerHTML = `
-            <div class="card-header">
-                <div class="card-title">🧵 Worker <span class="num">#${c.id}</span></div>
-                <span class="status waiting" id="status-${c.id}">Waiting</span>
-            </div>
-            <div class="range-info">Range: ${c.start.toLocaleString()} – ${c.end.toLocaleString()}</div>
-            <div class="bar-track"><div class="bar-fill" id="bar-${c.id}"></div></div>
-            <div class="stats">
-                <span><span class="label">Progress</span> <span class="value" id="pct-${c.id}">0%</span></span>
-                <span><span class="label">Primes</span> <span class="value" id="cnt-${c.id}">0</span></span>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
+    w.postMessage({id:t.id,start:t.start,end:t.end});
+    log(`Submitted Thread #${t.id}: range ${t.start.toLocaleString()}–${t.end.toLocaleString()}`,'info');
+  });
+  log('────────────────────────────────','info');
+  log('All threads started — parallel execution in progress...','info');
 }
 
-// ── Start ──────────────────────────────────────────────────────────────
-function startAll() {
-    if (started) return;
-    started = true;
-    doneCount = 0;
-    startTime = performance.now();
-    btnStart.disabled = true;
-    elStatus.textContent = 'Running…';
-    elTime.textContent = '—';
-
-    config.forEach(c => {
-        const w = new Worker(workerUrl);
-        workers.push(w);
-
-        w.onmessage = function(e) {
-            const d = e.data;
-            if (d.id !== c.id) return;
-
-            document.getElementById('bar-' + c.id).style.width  = d.progress + '%';
-            document.getElementById('pct-' + c.id).textContent  = Math.round(d.progress) + '%';
-            document.getElementById('cnt-' + c.id).textContent  = d.primes.length;
-
-            if (d.done) {
-                doneCount++;
-                document.getElementById('card-' + c.id).className = 'card done';
-                document.getElementById('status-' + c.id).className = 'status done';
-                document.getElementById('status-' + c.id).textContent = '✅ Done';
-
-                if (doneCount === config.length) {
-                    const elapsed = performance.now() - startTime;
-                    elTime.textContent  = elapsed.toFixed(1) + ' ms (' + (elapsed / 1000).toFixed(3) + ' s)';
-                    elStatus.textContent = '✅ Complete';
-                    btnStart.disabled = false;
-                }
-            } else {
-                document.getElementById('card-' + c.id).className = 'card running';
-                document.getElementById('status-' + c.id).className = 'status running';
-                document.getElementById('status-' + c.id).textContent = 'Running…';
-            }
-
-            // update total
-            let total = 0;
-            config.forEach(c2 => {
-                const el = document.getElementById('cnt-' + c2.id);
-                total += parseInt(el.textContent) || 0;
-            });
-            elTotal.textContent = total;
-        };
-
-        w.postMessage(c);
-    });
+// ── Reset ──
+function resetAll(){
+  workers.forEach(w=>w.terminate());workers=[];
+  started=0;doneCount=0;
+  btnStart.disabled=false;btnReset.classList.remove('running');
+  clearTerm();
+  log('System reset. Ready to start.','info');
+  elStatus.textContent='Waiting to start';
+  elDot.className='dot';
+  elTotalPrimes.textContent='0';
+  elTotalChecked.textContent='0';
+  elExecTime.textContent='—';
+  elThroughput.textContent='—';
+  elElapsed.textContent='';
+  THREADS.forEach(t=>{
+    document.getElementById('card-'+t.id).className='card';
+    document.getElementById('icon-'+t.id).className='icon idle';
+    document.getElementById('status-'+t.id).className='status waiting';
+    document.getElementById('status-'+t.id).textContent='Waiting';
+    document.getElementById('bar-'+t.id).style.width='0%';
+    document.getElementById('pct-'+t.id).textContent='0%';
+    document.getElementById('cnt-'+t.id).textContent='0';
+    document.getElementById('found-'+t.id).textContent='0';
+  });
 }
 
-// ── Reset ──────────────────────────────────────────────────────────────
-function resetAll() {
-    workers.forEach(w => w.terminate());
-    workers = [];
-    started = false;
-    doneCount = 0;
-    btnStart.disabled = false;
-    elTotal.textContent = '0';
-    elTime.textContent  = '—';
-    elStatus.textContent = 'Waiting';
-    config.forEach(c => {
-        document.getElementById('card-' + c.id).className = 'card';
-        document.getElementById('bar-' + c.id).style.width  = '0%';
-        document.getElementById('pct-' + c.id).textContent  = '0%';
-        document.getElementById('cnt-' + c.id).textContent  = '0';
-        document.getElementById('status-' + c.id).className = 'status waiting';
-        document.getElementById('status-' + c.id).textContent = 'Waiting';
-    });
-}
-
-buildCards();
+build();
+log('System ready. 4 worker threads configured.','info');
+log('Click "▶ Start Parallel Execution" to begin.','info');
 </script>
 </body>
 </html>
