@@ -1,0 +1,35 @@
+name: Run Parallel Prime Finder
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run the program
+        run: python src/main.py
+
+      - name: Save output as artifact
+        run: python src/main.py > output.txt 2>&1
+
+      - name: Display result
+        run: cat output.txt
+
+      - name: Upload result as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: parallel-prime-output
+          path: output.txt

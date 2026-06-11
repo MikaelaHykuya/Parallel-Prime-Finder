@@ -1,6 +1,9 @@
 # Parallel Prime Number Finder using Multiprocessing
 
-A Python-based parallel computing project that demonstrates multiprocessing by splitting the task of finding prime numbers from 1 to 100,000 across 4 worker processes.
+[![Run Parallel Prime Finder](https://github.com/MikaelaHykuya/Parallel-Prime-Finder/actions/workflows/run.yml/badge.svg)](https://github.com/MikaelaHykuya/Parallel-Prime-Finder/actions/workflows/run.yml)
+
+A Python-based parallel computing project that demonstrates multiprocessing by splitting the task of finding prime numbers from 1 to 100,000 across 4 worker processes.  
+**See it run live** → [GitHub Actions Tab](https://github.com/MikaelaHykuya/Parallel-Prime-Finder/actions/workflows/run.yml)
 
 ## Project Description
 
